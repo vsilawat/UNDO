@@ -64,18 +64,20 @@ export function IncidentLog({
 
   return (
     <Card>
-      <div className="mb-4 flex items-center justify-between">
-        <h3 className="font-bold">Incident timeline</h3>
+      <div className="mb-4 flex items-center justify-between border-b border-border pb-3">
+        <h3 className="text-xs font-bold tracking-widest text-muted">
+          EVENT LOG
+        </h3>
         <Button variant="ghost" onClick={download}>
           ⬇ Export report
         </Button>
       </div>
-      <ol className="relative space-y-3 border-l border-border pl-5">
+      <ol className="space-y-2 font-mono text-sm">
         {events.map((e, i) => (
-          <li key={i} className="relative">
-            <span className="absolute -left-[22px] top-1.5 h-2 w-2 rounded-full bg-brand" />
-            <div className="text-xs text-muted">{fmt(e.time)}</div>
-            <div className="text-sm">{e.text}</div>
+          <li key={i} className="flex gap-3">
+            <span className="shrink-0 tabular-nums text-info">{fmt(e.time)}</span>
+            <span className="text-border">│</span>
+            <span>{e.text}</span>
           </li>
         ))}
       </ol>

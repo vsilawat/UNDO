@@ -9,6 +9,7 @@ const SAMPLES = [
   "IRS FINAL NOTICE: You owe $2,340 in back taxes. Pay with gift cards within 24h or a warrant will be issued.",
   "Your package was delivered to the front porch. Thanks for shopping with us.",
 ];
+const LABELS = ["BANK_SCAM", "IRS_SCAM", "LEGIT_MSG"];
 
 export default function IntakePage() {
   const router = useRouter();
@@ -28,45 +29,50 @@ export default function IntakePage() {
 
   return (
     <div className="mx-auto max-w-2xl">
-      <div className="mb-6 text-center">
-        <h1 className="text-3xl font-black">Think you got scammed?</h1>
-        <p className="mt-2 text-muted">
-          Paste the message. We&apos;ll tell you what it is and help you undo the
-          damage — fast.
+      <div className="mb-6">
+        <div className="text-xs tracking-widest text-crit">● INTAKE</div>
+        <h1 className="mt-1 text-2xl font-black uppercase tracking-wide">
+          Report an incident
+        </h1>
+        <p className="mt-1 text-sm text-muted">
+          Paste the suspicious message. We classify the threat and help you undo
+          the damage — fast.
         </p>
       </div>
 
       <Card>
-        <label className="mb-2 block text-sm font-semibold text-muted">
-          Paste the suspicious text, email, or DM
+        <label className="mb-2 block text-xs tracking-widest text-muted">
+          SUSPICIOUS PAYLOAD — text / email / DM
         </label>
         <textarea
           value={msg}
           onChange={(e) => setMsg(e.target.value)}
           rows={6}
-          placeholder="Paste here…"
-          className="w-full resize-none rounded-lg border border-border bg-surface-2 p-4 text-base text-text placeholder:text-muted focus:border-brand focus:outline-none"
+          placeholder="> paste here…"
+          className="w-full resize-none border border-border bg-surface-2 p-4 font-mono text-sm text-text placeholder:text-muted focus:border-warn focus:outline-none"
         />
         <div className="mt-4 flex items-center justify-between gap-3">
-          <span className="text-xs text-muted">
-            Personal details are stripped before anything is analyzed.
+          <span className="text-xs text-info">
+            // PII stripped before analysis
           </span>
           <Button onClick={open} disabled={!msg.trim() || loading}>
-            {loading ? "Opening…" : "Open incident →"}
+            {loading ? "Analyzing…" : "Open incident →"}
           </Button>
         </div>
       </Card>
 
       <div className="mt-6">
-        <div className="mb-2 text-sm text-muted">Try a sample:</div>
+        <div className="mb-2 text-xs tracking-widest text-muted">
+          LOAD SAMPLE:
+        </div>
         <div className="flex flex-wrap gap-2">
           {SAMPLES.map((s, i) => (
             <button
               key={i}
               onClick={() => setMsg(s)}
-              className="rounded-lg border border-border bg-surface px-3 py-2 text-left text-xs text-muted hover:border-brand"
+              className="border border-border bg-surface px-3 py-2 font-mono text-xs text-muted hover:border-warn hover:text-text"
             >
-              {["Bank scam", "IRS scam", "Legit message"][i]}
+              {LABELS[i]}
             </button>
           ))}
         </div>

@@ -10,7 +10,7 @@ export function Card({
 }) {
   return (
     <div
-      className={`rounded-xl border border-border bg-surface p-5 ${className}`}
+      className={`tac-card border border-border bg-surface p-5 ${className}`}
     >
       {children}
     </div>
@@ -27,31 +27,37 @@ export function Button({
   ...props
 }: BtnProps) {
   const base =
-    "inline-flex items-center justify-center gap-2 rounded-lg px-5 py-3 text-base font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed";
+    "inline-flex items-center justify-center gap-2 px-5 py-3 text-sm font-bold uppercase tracking-wider transition disabled:opacity-40 disabled:cursor-not-allowed";
   const styles = {
-    primary: "bg-brand text-brand-ink hover:brightness-110",
-    ghost: "border border-border bg-surface-2 text-text hover:border-brand",
-    danger: "bg-danger text-[#2a0a0a] hover:brightness-110",
+    primary: "bg-warn text-brand-ink hover:brightness-110",
+    ghost: "border border-border bg-surface-2 text-text hover:border-warn",
+    danger:
+      "bg-crit text-[#1a0000] hover:brightness-110 shadow-[0_0_12px_rgba(255,59,59,0.4)]",
   }[variant];
   return <button className={`${base} ${styles} ${className}`} {...props} />;
 }
 
-const STATUS_META: Record<AssetStatus, { label: string; color: string }> = {
-  safe: { label: "Safe", color: "text-safe border-safe/40 bg-safe/10" },
-  at_risk: { label: "At risk", color: "text-risk border-risk/40 bg-risk/10" },
-  compromised: {
-    label: "Compromised",
-    color: "text-danger border-danger/40 bg-danger/10",
-  },
-  locked: { label: "Locked", color: "text-locked border-locked/40 bg-locked/10" },
+const STATUS_META: Record<
+  AssetStatus,
+  { label: string; dot: string; text: string }
+> = {
+  safe: { label: "SAFE", dot: "bg-ok", text: "text-ok" },
+  at_risk: { label: "AT_RISK", dot: "bg-warn", text: "text-warn" },
+  compromised: { label: "COMPROMISED", dot: "bg-crit", text: "text-crit" },
+  locked: { label: "LOCKED", dot: "bg-info", text: "text-info" },
 };
 
 export function StatusChip({ status }: { status: AssetStatus }) {
   const m = STATUS_META[status];
+  const glow =
+    status === "compromised"
+      ? "shadow-[0_0_8px_2px_rgba(255,59,59,0.6)]"
+      : status === "at_risk"
+        ? "shadow-[0_0_8px_1px_rgba(255,176,32,0.5)]"
+        : "";
   return (
-    <span
-      className={`inline-flex items-center rounded-full border px-3 py-1 text-sm font-semibold ${m.color}`}
-    >
+    <span className={`inline-flex items-center gap-2 text-sm font-bold ${m.text}`}>
+      <span className={`h-2.5 w-2.5 rounded-full ${m.dot} ${glow}`} />
       {m.label}
     </span>
   );
@@ -68,12 +74,12 @@ export function SectionTitle({
 }) {
   return (
     <div className="mb-4 flex items-baseline gap-3">
-      <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-surface-2 text-sm font-bold text-brand">
-        {n}
+      <span className="grid h-6 w-6 shrink-0 place-items-center border border-warn/50 text-xs font-bold text-warn">
+        {String(n).padStart(2, "0")}
       </span>
       <div>
-        <h2 className="text-lg font-bold">{title}</h2>
-        {sub && <p className="text-sm text-muted">{sub}</p>}
+        <h2 className="text-sm font-bold uppercase tracking-widest">{title}</h2>
+        {sub && <p className="text-xs text-muted">{sub}</p>}
       </div>
     </div>
   );

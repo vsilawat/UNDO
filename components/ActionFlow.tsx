@@ -24,12 +24,14 @@ export function ActionFlow({
   if (done) {
     return (
       <Card className="text-center">
-        <p className="text-lg font-semibold">Thanks — scope updated below.</p>
+        <p className="text-sm font-bold uppercase tracking-widest text-ok">
+          ✓ Triage complete
+        </p>
         <p className="mt-1 text-sm text-muted">
-          We marked what&apos;s at risk. Lock anything compromised.
+          Scope updated below. Lock anything compromised.
         </p>
         <Button className="mt-4" onClick={onDone}>
-          See blast radius
+          View blast radius
         </Button>
       </Card>
     );
@@ -43,15 +45,21 @@ export function ActionFlow({
 
   return (
     <Card>
-      <div className="mb-4 flex gap-1.5">
+      <div className="mb-1 flex justify-between text-xs tracking-widest text-muted">
+        <span>TRIAGE</span>
+        <span>
+          {String(i + 1).padStart(2, "0")}/{String(QUESTIONS.length).padStart(2, "0")}
+        </span>
+      </div>
+      <div className="mb-4 flex gap-1">
         {QUESTIONS.map((_, idx) => (
           <div
             key={idx}
-            className={`h-1.5 flex-1 rounded-full ${idx <= i ? "bg-brand" : "bg-surface-2"}`}
+            className={`h-1 flex-1 ${idx <= i ? "bg-warn" : "bg-surface-2"}`}
           />
         ))}
       </div>
-      <p className="text-xl font-bold">{cur.q}</p>
+      <p className="text-lg font-bold">{cur.q}</p>
       <div className="mt-5 grid grid-cols-2 gap-3">
         <Button variant="danger" onClick={() => answer(true)}>
           Yes

@@ -9,25 +9,34 @@ export function ScopeBoard({
   onLock: (name: string) => void;
 }) {
   return (
-    <div className="grid gap-3 sm:grid-cols-2">
+    <Card className="!p-0">
+      <div className="grid grid-cols-[1fr_auto_auto] items-center gap-x-4 border-b border-border px-4 py-2 text-xs tracking-widest text-muted">
+        <span>ASSET</span>
+        <span>STATUS</span>
+        <span>ACTION</span>
+      </div>
       {assets.map((a) => (
-        <Card key={a.name} className="flex items-center justify-between">
-          <div>
-            <div className="font-semibold">{a.name}</div>
-            <div className="mt-1">
-              <StatusChip status={a.status} />
-            </div>
-          </div>
-          {a.status !== "safe" && a.status !== "locked" && (
-            <Button variant="danger" onClick={() => onLock(a.name)}>
-              Lock it
-            </Button>
-          )}
-          {a.status === "locked" && (
-            <span className="text-sm text-locked">🔒 Secured</span>
-          )}
-        </Card>
+        <div
+          key={a.name}
+          className="grid grid-cols-[1fr_auto_auto] items-center gap-x-4 border-b border-border px-4 py-3 last:border-b-0"
+        >
+          <span className="font-bold uppercase tracking-wide">
+            {a.name.replace(/ /g, "_")}
+          </span>
+          <StatusChip status={a.status} />
+          <span className="justify-self-end">
+            {a.status !== "safe" && a.status !== "locked" ? (
+              <Button variant="danger" onClick={() => onLock(a.name)}>
+                Lock
+              </Button>
+            ) : a.status === "locked" ? (
+              <span className="text-sm text-info">🔒 SECURED</span>
+            ) : (
+              <span className="text-sm text-muted">—</span>
+            )}
+          </span>
+        </div>
       ))}
-    </div>
+    </Card>
   );
 }
