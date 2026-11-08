@@ -20,7 +20,10 @@ async function get(path) {
   const url = new URL(path, "https://api.nessieisreal.com");
   url.searchParams.set("key", key);
   const response = await fetch(url, { signal: AbortSignal.timeout(10000) });
-  if (!response.ok) throw new Error(`Nessie returned HTTP ${response.status}`);
+  if (!response.ok) {
+    const detail = (await response.text()).replaceAll(key, "[redacted]").slice(0, 500);
+    throw new Error(`Nessie returned HTTP ${response.status}: ${detail}`);
+  }
   const value = await response.json();
   if (!Array.isArray(value)) throw new Error("Nessie returned an unexpected response");
   return value;
@@ -35,7 +38,17 @@ try {
     const accounts = await get(`/customers/${encodeURIComponent(id)}/accounts`);
     console.log(`Customer ${id}: ${accounts.length} account(s)`);
     for (const account of accounts) {
-      if (typeof account._id === "string") console.log(`  Account ID: ${account._id}`);
+      if (typeof account._id !== "string") continue;
+      console.log(`  Account ID: ${account._id}`);
+      for (const kind of ["purchases", "withdrawals"]) {
+        try {
+          const entries = await get(`/accounts/${encodeURIComponent(account._id)}/${kind}`);
+          console.log(`  ${kind}: ${entries.length}`);
+        } catch (error) {
+          console.error(`  ${kind}: ${error instanceof Error ? error.message : "request failed"}`);
+          process.exitCode = 1;
+        }
+      }
     }
   }
 } catch (error) {

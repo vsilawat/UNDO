@@ -73,6 +73,9 @@ try {
   }
 
   const accountId = account._id;
+  const updated = env.split(/\r?\n/).filter((line) => line && !line.startsWith("NESSIE_ACCOUNT_ID="));
+  updated.push(`NESSIE_ACCOUNT_ID=${accountId}`);
+  writeFileSync(envPath, `${updated.join("\n")}\n`, { mode: 0o600 });
   const path = `/accounts/${encodeURIComponent(accountId)}/withdrawals`;
   const existing = await request(path);
   if (!Array.isArray(existing)) throw new Error("Unexpected withdrawal list from Nessie");
@@ -85,9 +88,6 @@ try {
     console.log(`Created sample payment: ${entry.description}.`);
   }
 
-  const updated = env.split(/\r?\n/).filter((line) => line && !line.startsWith("NESSIE_ACCOUNT_ID="));
-  updated.push(`NESSIE_ACCOUNT_ID=${accountId}`);
-  writeFileSync(envPath, `${updated.join("\n")}\n`, { mode: 0o600 });
   const verified = await request(path);
   console.log(`Nessie account ${accountId} is configured with ${verified.length} withdrawal(s).`);
 } catch (error) {
