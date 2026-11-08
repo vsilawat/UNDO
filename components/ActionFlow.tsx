@@ -31,7 +31,7 @@ export function ActionFlow({
           Scope updated below. Lock anything compromised.
         </p>
         <Button className="mt-4" onClick={onDone}>
-          View blast radius
+          Continue →
         </Button>
       </Card>
     );

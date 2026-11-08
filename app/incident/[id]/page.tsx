@@ -2,6 +2,7 @@
 import { useEffect, useState, use } from "react";
 import Link from "next/link";
 import { api } from "@/app/_client/api";
+import { downloadReport } from "@/app/_client/report";
 import type {
   Incident,
   Asset,
@@ -9,12 +10,16 @@ import type {
   LogEvent,
   ScopeAction,
 } from "@/app/_client/types";
-import { SectionTitle, Card } from "@/components/ui";
+import { Card, Button } from "@/components/ui";
+import { Stepper } from "@/components/Stepper";
 import { VerdictCard } from "@/components/VerdictCard";
 import { ActionFlow } from "@/components/ActionFlow";
 import { ScopeBoard } from "@/components/ScopeBoard";
 import { BlastRadius } from "@/components/BlastRadius";
 import { IncidentLog } from "@/components/IncidentLog";
+import { RecoverySummary } from "@/components/RecoverySummary";
+
+const STEPS = ["VERDICT", "TRIAGE", "SCOPE", "MONEY", "DONE"];
 
 export default function IncidentPage({
   params,
@@ -27,6 +32,7 @@ export default function IncidentPage({
   const [money, setMoney] = useState<MoneyResult | null>(null);
   const [log, setLog] = useState<LogEvent[]>([]);
   const [error, setError] = useState(false);
+  const [step, setStep] = useState(0);
 
   const refresh = async () => {
     const [m, l] = await Promise.all([api.getMoney(id), api.getLog(id)]);
@@ -61,63 +67,128 @@ export default function IncidentPage({
     await refresh();
   };
 
+  const next = () => setStep((s) => Math.min(s + 1, STEPS.length - 1));
+  const back = () => setStep((s) => Math.max(s - 1, 0));
+
   if (error) {
     return (
       <Card className="text-center">
         <p className="text-lg font-semibold">Incident not found.</p>
-        <Link href="/" className="mt-2 inline-block text-brand underline">
+        <Link href="/" className="mt-2 inline-block text-warn underline">
           Start a new one
         </Link>
       </Card>
     );
   }
-
   if (!incident) {
     return <div className="animate-pulse text-muted">Loading incident…</div>;
   }
 
+  const anyCompromised = assets.some(
+    (a) => a.status === "compromised" || a.status === "at_risk",
+  );
+
   return (
-    <div className="space-y-10">
-      <div className="flex items-center justify-between">
-        <Link href="/" className="text-sm text-muted hover:text-brand">
+    <div className="mx-auto max-w-xl">
+      <div className="mb-4 flex items-center justify-between text-sm">
+        <Link href="/" className="text-muted hover:text-warn">
           ← New incident
         </Link>
         <span className="font-mono text-xs text-muted">#{incident.id}</span>
       </div>
 
-      <section>
-        <SectionTitle n={1} title="Verdict" sub="What this message is, honestly." />
-        <VerdictCard incident={incident} />
-      </section>
+      <Stepper steps={STEPS} current={step} />
 
-      <section>
-        <SectionTitle
-          n={2}
-          title="What did you do?"
-          sub="Answer a few quick questions so we know what's exposed."
-        />
-        <ActionFlow onAnswer={onAnswer} onDone={() => {}} />
-      </section>
+      {/* One step on screen at a time — Hick's Law, lower cognitive load. */}
+      {step === 0 && (
+        <div className="space-y-5">
+          <VerdictCard incident={incident} />
+          <Button className="w-full" onClick={next}>
+            {incident.isScam ? "Start recovery →" : "Looks safe — review steps →"}
+          </Button>
+        </div>
+      )}
 
-      <section>
-        <SectionTitle n={3} title="Scope of compromise" sub="Lock anything at risk." />
-        <ScopeBoard assets={assets} onLock={onLock} />
-      </section>
+      {step === 1 && (
+        <div className="space-y-5">
+          <p className="text-sm text-muted">
+            Answer honestly — this tells us exactly what&apos;s exposed. One
+            question at a time.
+          </p>
+          <ActionFlow onAnswer={onAnswer} onDone={next} />
+        </div>
+      )}
 
-      <section>
-        <SectionTitle n={4} title="Blast radius" sub="Money traced from your accounts." />
-        {money && <BlastRadius money={money} />}
-      </section>
+      {step === 2 && (
+        <div className="space-y-5">
+          <div>
+            <h2 className="text-lg font-black uppercase tracking-wide">
+              Lock what&apos;s exposed
+            </h2>
+            <p className="text-sm text-muted">
+              {anyCompromised
+                ? "Tap Lock on anything at risk. Do the red ones first."
+                : "Nothing flagged as exposed — you can continue."}
+            </p>
+          </div>
+          <ScopeBoard assets={assets} onLock={onLock} />
+          <div className="flex gap-3">
+            <Button variant="ghost" onClick={back}>
+              ← Back
+            </Button>
+            <Button className="flex-1" onClick={next}>
+              Continue →
+            </Button>
+          </div>
+        </div>
+      )}
 
-      <section>
-        <SectionTitle n={5} title="Record" sub="Every action, timestamped." />
-        <IncidentLog
-          incident={incident}
-          events={log}
-          money={money}
-          assets={assets}
-        />
-      </section>
+      {step === 3 && (
+        <div className="space-y-5">
+          <div>
+            <h2 className="text-lg font-black uppercase tracking-wide">
+              Trace the money
+            </h2>
+            <p className="text-sm text-muted">
+              We flagged transactions that match the scam. Freeze if anything
+              looks wrong.
+            </p>
+          </div>
+          {money && <BlastRadius money={money} />}
+          <div className="flex gap-3">
+            <Button variant="ghost" onClick={back}>
+              ← Back
+            </Button>
+            <Button className="flex-1" onClick={next}>
+              Finish →
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {step === 4 && (
+        <div className="space-y-5">
+          <RecoverySummary
+            assets={assets}
+            money={money}
+            onExport={() => downloadReport(incident, log, money, assets)}
+          />
+          <details className="group">
+            <summary className="cursor-pointer list-none text-center text-xs tracking-widest text-muted hover:text-warn">
+              ▾ VIEW FULL EVENT LOG
+            </summary>
+            <div className="mt-3">
+              <IncidentLog
+                incident={incident}
+                events={log}
+                money={money}
+                assets={assets}
+                showExport={false}
+              />
+            </div>
+          </details>
+        </div>
+      )}
     </div>
   );
 }
