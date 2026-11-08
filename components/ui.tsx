@@ -8,7 +8,9 @@ export function Card({
   children: ReactNode;
   className?: string;
 }) {
-  return <div className={`card p-6 ${className}`}>{children}</div>;
+  return (
+    <div className={`border border-ink bg-surface ${className}`}>{children}</div>
+  );
 }
 
 type BtnProps = ButtonHTMLAttributes<HTMLButtonElement> & {
@@ -23,70 +25,46 @@ export function Button({
   ...props
 }: BtnProps) {
   const base =
-    "inline-flex items-center justify-center gap-2 rounded-full font-semibold transition active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed";
-  const sizing = size === "lg" ? "px-7 py-4 text-base" : "px-5 py-3 text-sm";
+    "inline-flex items-center justify-center gap-2 font-bold uppercase tracking-wider transition disabled:opacity-40 disabled:cursor-not-allowed border-2";
+  const sizing = size === "lg" ? "px-7 py-4 text-sm" : "px-5 py-3 text-xs";
   const styles = {
-    primary:
-      "bg-gradient-to-b from-[#ff6474] to-[#ff3b4d] text-white shadow-[0_8px_24px_-8px_rgba(255,77,94,0.7)] hover:brightness-110",
-    ghost: "border border-border bg-elevated text-text hover:border-muted",
-    danger:
-      "bg-gradient-to-b from-[#ff6474] to-[#ff3b4d] text-white shadow-[0_8px_24px_-8px_rgba(255,77,94,0.7)] hover:brightness-110",
+    primary: "border-red bg-red text-bg hover:bg-red-dark hover:border-red-dark",
+    danger: "border-red bg-red text-bg hover:bg-red-dark hover:border-red-dark",
+    ghost: "border-ink bg-transparent text-ink hover:bg-ink hover:text-bg",
   }[variant];
   return <button className={`${base} ${sizing} ${styles} ${className}`} {...props} />;
 }
 
-const STATUS_META: Record<
-  AssetStatus,
-  { label: string; dot: string; chip: string }
-> = {
-  safe: { label: "Safe", dot: "bg-ok", chip: "text-ok bg-ok/10 border-ok/20" },
-  at_risk: {
-    label: "At risk",
-    dot: "bg-warn",
-    chip: "text-warn bg-warn/10 border-warn/20",
-  },
-  compromised: {
-    label: "Compromised",
-    dot: "bg-crit",
-    chip: "text-crit bg-crit/10 border-crit/25",
-  },
-  locked: {
-    label: "Locked",
-    dot: "bg-info",
-    chip: "text-info bg-info/10 border-info/20",
-  },
+const STATUS_META: Record<AssetStatus, { label: string; tw: string }> = {
+  safe: { label: "Safe", tw: "text-ok border-ok" },
+  at_risk: { label: "At risk", tw: "text-warn border-warn" },
+  compromised: { label: "Compromised", tw: "text-red border-red" },
+  locked: { label: "Locked", tw: "text-ink border-ink" },
 };
 
 export function StatusChip({ status }: { status: AssetStatus }) {
   const m = STATUS_META[status];
   return (
     <span
-      className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold ${m.chip}`}
+      className={`label inline-flex items-center border px-2.5 py-1 ${m.tw}`}
     >
-      <span className={`h-2 w-2 rounded-full ${m.dot}`} />
       {m.label}
     </span>
   );
 }
 
 export function SectionTitle({
-  n,
   title,
   sub,
 }: {
-  n: number;
+  n?: number;
   title: string;
   sub?: string;
 }) {
   return (
-    <div className="mb-4 flex items-baseline gap-3">
-      <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-elevated text-xs font-bold text-warn">
-        {n}
-      </span>
-      <div>
-        <h2 className="text-lg font-bold">{title}</h2>
-        {sub && <p className="text-sm text-muted">{sub}</p>}
-      </div>
+    <div className="mb-4">
+      <div className="label dashed pb-2 text-muted">{title}</div>
+      {sub && <p className="mt-2 text-sm text-muted">{sub}</p>}
     </div>
   );
 }

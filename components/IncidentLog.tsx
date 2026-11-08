@@ -1,6 +1,6 @@
 import type { LogEvent, Incident, MoneyResult, Asset } from "@/app/_client/types";
 import { downloadReport, fmt } from "@/app/_client/report";
-import { Card, Button } from "./ui";
+import { Button } from "./ui";
 
 export function IncidentLog({
   incident,
@@ -16,27 +16,27 @@ export function IncidentLog({
   showExport?: boolean;
 }) {
   return (
-    <Card>
-      <div className="mb-4 flex items-center justify-between border-b border-border pb-3">
-        <h3 className="text-xs font-bold tracking-widest text-muted">EVENT LOG</h3>
+    <div className="border border-ink bg-surface p-5">
+      <div className="label dashed flex items-center justify-between pb-2 text-muted">
+        <span>Event log</span>
         {showExport && (
-          <Button
-            variant="ghost"
+          <button
             onClick={() => downloadReport(incident, events, money, assets)}
+            className="text-red hover:underline"
           >
             ⬇ Export report
-          </Button>
+          </button>
         )}
       </div>
-      <ol className="space-y-2 font-mono text-sm">
+      <ol className="mt-3 space-y-2 font-mono text-sm">
         {events.map((e, i) => (
           <li key={i} className="flex gap-3">
-            <span className="shrink-0 tabular-nums text-info">{fmt(e.time)}</span>
-            <span className="text-border">│</span>
+            <span className="shrink-0 tabular-nums text-red">{fmt(e.time)}</span>
+            <span className="text-line">│</span>
             <span>{e.text}</span>
           </li>
         ))}
       </ol>
-    </Card>
+    </div>
   );
 }

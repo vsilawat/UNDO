@@ -49,6 +49,8 @@ function classify(message: string): Omit<Incident, "id" | "createdAt"> {
     flags.push("Asks to move money through hard-to-reverse channels");
   if (/verify|confirm|suspend|locked|unusual activity/.test(m))
     flags.push("Fake urgency about your account");
+  if (/warrant|arrest|lawsuit|back tax|final notice|24h|24 hours|immediately|within \d+/.test(m))
+    flags.push("Threats and a countdown to pressure you");
   if (/code|otp|password|ssn|social security/.test(m))
     flags.push("Requests a code or credential no real company asks for");
   if (/https?:\/\/|bit\.ly|tinyurl|click here/.test(m))

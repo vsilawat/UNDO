@@ -1,4 +1,3 @@
-// Goal-Gradient + Zeigarnik: visible progress pulls the user to finish.
 export function Stepper({
   steps,
   current,
@@ -8,17 +7,18 @@ export function Stepper({
 }) {
   const pct = Math.round((current / (steps.length - 1)) * 100);
   return (
-    <div className="mb-8">
-      <div className="mb-3 flex items-center justify-between text-sm">
-        <span className="font-semibold text-text">{steps[current]}</span>
-        <span className="text-muted">
-          Step {current + 1} of {steps.length}
+    <div className="mb-10">
+      <div className="label flex items-center justify-between text-muted">
+        <span className="text-red">
+          Step {String(current + 1).padStart(2, "0")}/
+          {String(steps.length).padStart(2, "0")} — {steps[current]}
         </span>
+        <span>{pct}% complete</span>
       </div>
-      <div className="relative h-2 w-full overflow-hidden rounded-full bg-surface-2">
+      <div className="mt-3 h-2 w-full border border-ink bg-surface">
         <div
-          className="h-full rounded-full bg-gradient-to-r from-warn to-crit transition-all duration-500"
-          style={{ width: `${Math.max(pct, 6)}%` }}
+          className="h-full bg-red transition-all duration-500"
+          style={{ width: `${pct}%` }}
         />
       </div>
       <div className="mt-3 flex justify-between">
@@ -29,12 +29,12 @@ export function Stepper({
             <span
               key={s}
               className={
-                "grid h-6 w-6 place-items-center rounded-full text-[11px] font-bold transition " +
+                "grid h-6 w-6 place-items-center border text-[11px] font-bold " +
                 (done
-                  ? "bg-ok text-[#04120b]"
+                  ? "border-ink bg-ink text-bg"
                   : cur
-                    ? "bg-gradient-to-b from-[#ff6474] to-[#ff3b4d] text-white shadow-[0_4px_12px_-4px_rgba(255,77,94,0.8)]"
-                    : "bg-surface-2 text-muted")
+                    ? "border-red bg-red text-bg"
+                    : "border-line text-muted")
               }
             >
               {done ? "✓" : i + 1}

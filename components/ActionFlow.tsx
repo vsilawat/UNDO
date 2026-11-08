@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import type { ScopeAction } from "@/app/_client/types";
-import { Button, Card } from "./ui";
+import { Button } from "./ui";
 
 const QUESTIONS: { action: ScopeAction; q: string; hint: string }[] = [
   { action: "clicked_link", q: "Did you click a link in the message?", hint: "Even just opening it counts." },
@@ -24,16 +24,16 @@ export function ActionFlow({
 
   if (done) {
     return (
-      <Card className="text-center">
-        <div className="text-4xl">✅</div>
-        <p className="mt-3 text-xl font-bold">All set</p>
-        <p className="mt-1 text-sm text-muted">
+      <div className="border-2 border-ink bg-surface p-8 text-center">
+        <div className="label text-red">Triage complete</div>
+        <p className="mt-3 text-3xl font-black uppercase">All set</p>
+        <p className="mt-2 text-muted">
           We know what&apos;s exposed. Let&apos;s lock it down.
         </p>
-        <Button size="lg" className="mt-5 w-full" onClick={onDone}>
+        <Button size="lg" className="mt-6 w-full" onClick={onDone}>
           Continue →
         </Button>
-      </Card>
+      </div>
     );
   }
 
@@ -57,13 +57,16 @@ export function ActionFlow({
   };
 
   return (
-    <Card key={i} className="animate-rise">
-      <div className="text-sm text-muted">
-        Question {i + 1} of {QUESTIONS.length}
+    <div key={i} className="animate-rise">
+      <div className="label text-muted">
+        Question {String(i + 1).padStart(2, "0")} of{" "}
+        {String(QUESTIONS.length).padStart(2, "0")}
       </div>
-      <p className="mt-2 text-2xl font-bold leading-snug">{cur.q}</p>
-      <p className="mt-1 text-sm text-muted">{cur.hint}</p>
-      <div className="mt-6 grid grid-cols-2 gap-3">
+      <p className="mt-3 text-3xl font-black uppercase leading-tight tracking-tight sm:text-4xl">
+        {cur.q}
+      </p>
+      <p className="mt-2 text-muted">{cur.hint}</p>
+      <div className="mt-8 grid grid-cols-2 gap-4">
         <Button variant="danger" size="lg" onClick={() => answer(true)} disabled={saving}>
           Yes
         </Button>
@@ -71,7 +74,11 @@ export function ActionFlow({
           No
         </Button>
       </div>
-      {error && <p className="mt-3 text-sm text-crit">Could not save that answer. Please try again.</p>}
-    </Card>
+      {error && (
+        <p className="label mt-3 text-red">
+          Could not save that answer. Please try again.
+        </p>
+      )}
+    </div>
   );
 }

@@ -2,14 +2,25 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "./_client/api";
-import { Button, Card } from "@/components/ui";
+import { Button } from "@/components/ui";
 
 const SAMPLES = [
-  "URGENT: Your bank account is locked. Verify now at http://secure-bank-verify.co or call 800-555-0199. Reply with the code we texted you.",
-  "IRS FINAL NOTICE: You owe $2,340 in back taxes. Pay with gift cards within 24h or a warrant will be issued.",
-  "Your package was delivered to the front porch. Thanks for shopping with us.",
+  {
+    text: "URGENT: Your bank account is locked. Verify now at http://secure-bank-verify.co or call 800-555-0199. Reply with the code we texted you.",
+    name: "Bank account locked",
+    tag: "Bank scam",
+  },
+  {
+    text: "IRS FINAL NOTICE: You owe $2,340 in back taxes. Pay with gift cards within 24h or a warrant will be issued.",
+    name: "IRS final notice",
+    tag: "Gov impersonation",
+  },
+  {
+    text: "Your package was delivered to the front porch. Thanks for shopping with us.",
+    name: "Package delivered",
+    tag: "Legit message",
+  },
 ];
-const LABELS = ["Bank scam", "IRS scam", "Legit message"];
 
 export default function IntakePage() {
   const router = useRouter();
@@ -31,55 +42,77 @@ export default function IntakePage() {
   };
 
   return (
-    <div className="animate-rise mx-auto max-w-xl">
-      <div className="mb-7 text-center">
-        <h1 className="text-4xl font-black leading-tight tracking-tight">
-          Think you got scammed?
-        </h1>
-        <p className="mt-3 text-lg text-muted">
-          Paste the message. We&apos;ll tell you what it is and walk you through
-          undoing the damage — step by step.
-        </p>
+    <div className="animate-rise">
+      <div className="label mb-5 flex items-center gap-2 text-red">
+        <span className="inline-block h-3 w-1.5 bg-red" />
+        Incident intake — form 01
       </div>
 
-      <Card className="!p-5">
-        <label className="mb-2 block text-sm font-medium text-muted">
-          Paste the suspicious text, email, or DM
-        </label>
+      <h1 className="text-5xl font-black uppercase leading-[0.92] tracking-tight sm:text-7xl">
+        Undo the damage in the{" "}
+        <span className="inline-block bg-red px-3 pb-1 text-bg">
+          first hour.
+        </span>
+      </h1>
+
+      <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted">
+        You&apos;re not stupid and you&apos;re not alone. Paste the message — we
+        start the clock and walk you through undoing the damage, step by step.
+      </p>
+
+      <div className="mt-10">
+        <div className="label dashed pb-2 text-muted">
+          Section A — paste the message
+        </div>
+
         <textarea
           value={msg}
           onChange={(e) => setMsg(e.target.value)}
-          rows={6}
-          placeholder="Paste it here…"
-          className="mono w-full resize-none rounded-xl border border-border bg-surface-2 p-4 text-sm leading-relaxed text-text placeholder:text-muted/70 focus:border-info focus:outline-none"
+          rows={5}
+          placeholder="Paste the suspicious text, email, or DM…"
+          className="mt-5 w-full resize-none border border-ink bg-surface p-4 font-mono text-sm leading-relaxed text-ink placeholder:text-muted focus:border-red focus:outline-none"
         />
-        <div className="mt-4 flex items-center justify-between gap-3">
-          <span className="text-xs text-info">
-            Personal details are stripped before anything is analyzed.
+
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+          <span className="label text-muted">
+            Personal details stripped before analysis
           </span>
           <Button size="lg" onClick={open} disabled={!msg.trim() || loading}>
             {loading ? "Analyzing…" : "Check it →"}
           </Button>
         </div>
-        {error && <p className="mt-3 text-sm text-crit">Could not open the incident. Please try again.</p>}
-      </Card>
-
-      <div className="mt-6 text-center">
-        <div className="mb-2 text-xs uppercase tracking-wider text-muted">
-          or try a sample
-        </div>
-        <div className="flex flex-wrap justify-center gap-2">
-          {SAMPLES.map((s, i) => (
-            <button
-              key={i}
-              onClick={() => setMsg(s)}
-              className="rounded-full border border-border bg-surface px-4 py-2 text-sm text-muted transition hover:border-muted hover:text-text"
-            >
-              {LABELS[i]}
-            </button>
-          ))}
-        </div>
+        {error && (
+          <p className="label mt-3 text-red">
+            Could not open the incident. Please try again.
+          </p>
+        )}
       </div>
+
+      <div className="mt-10">
+        <div className="label dashed pb-2 text-muted">
+          Section B — or load a sample
+        </div>
+        <ul>
+          {SAMPLES.map((s, i) => (
+            <li key={i}>
+              <button
+                onClick={() => setMsg(s.text)}
+                className="group flex w-full items-center gap-5 border-b border-line py-5 text-left transition hover:bg-surface-2"
+              >
+                <span className="label w-6 shrink-0 text-red">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <span className="flex-1 text-xl font-bold">{s.name}</span>
+                <span className="label text-muted">{s.tag}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <p className="label mt-10 text-muted">
+        General guidance, not legal advice · US-focused reporting resources
+      </p>
     </div>
   );
 }

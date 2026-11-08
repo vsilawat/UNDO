@@ -1,10 +1,24 @@
 import type { Metadata } from "next";
+import { Archivo, Space_Mono } from "next/font/google";
 import "./globals.css";
 import { Clock } from "@/components/Clock";
 
+const archivo = Archivo({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800", "900"],
+  variable: "--font-archivo",
+  display: "swap",
+});
+const spaceMono = Space_Mono({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  variable: "--font-space-mono",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
-  title: "UNDO — Undo the damage in the first hour",
-  description: "Incident command for scam victims.",
+  title: "UNDO — First-hour response protocol",
+  description: "Undo the damage in the first hour.",
 };
 
 export default function RootLayout({
@@ -13,31 +27,26 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${archivo.variable} ${spaceMono.variable}`}>
       <body>
-        <div className="min-h-dvh">
-          <header className="sticky top-0 z-10 border-b border-border/70 bg-bg/70 backdrop-blur-xl">
-            <div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-3.5">
-              <div className="flex items-center gap-2.5">
-                <span className="grid h-8 w-8 place-items-center rounded-xl bg-gradient-to-b from-[#ff6474] to-[#ff3b4d] font-black text-white shadow-[0_6px_16px_-6px_rgba(255,77,94,0.8)]">
-                  U
-                </span>
-                <span className="text-[15px] font-bold tracking-tight">UNDO</span>
-                <span className="ml-1 flex items-center gap-1.5 rounded-full border border-crit/25 bg-crit/10 px-2.5 py-1">
-                  <span className="live-dot h-1.5 w-1.5 rounded-full bg-crit" />
-                  <span className="text-[11px] font-semibold tracking-wide text-crit">
-                    LIVE
-                  </span>
-                </span>
-              </div>
-              <div className="mono flex items-center gap-2 text-xs text-muted">
-                <span className="hidden sm:inline">elapsed</span>
+        <div className="hazard" />
+        <header className="border-b-2 border-ink bg-bg">
+          <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-5">
+            <span className="text-2xl font-black tracking-tight">
+              UNDO<span className="text-red">/</span>
+            </span>
+            <div className="flex items-center gap-5">
+              <span className="label hidden text-muted sm:inline">
+                First-hour response protocol
+              </span>
+              <span className="label flex items-center gap-2 text-red">
+                <span className="h-2 w-2 bg-red" />
                 <Clock />
-              </div>
+              </span>
             </div>
-          </header>
-          <main className="mx-auto max-w-5xl px-5 py-10">{children}</main>
-        </div>
+          </div>
+        </header>
+        <main className="mx-auto max-w-5xl px-6 py-12">{children}</main>
       </body>
     </html>
   );

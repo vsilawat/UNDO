@@ -9,15 +9,18 @@ export function ScopeBoard({
   onLock: (name: string) => void;
 }) {
   return (
-    <div className="space-y-3">
-      {assets.map((a) => (
-        <div
+    <ul className="border-t border-ink">
+      {assets.map((a, i) => (
+        <li
           key={a.name}
-          className="card flex items-center justify-between gap-3 p-4"
+          className="flex items-center gap-5 border-b border-line py-5"
         >
-          <div className="min-w-0">
-            <div className="font-semibold">{a.name}</div>
-            <div className="mt-1.5">
+          <span className="label w-6 shrink-0 text-red">
+            {String(i + 1).padStart(2, "0")}
+          </span>
+          <div className="flex-1">
+            <div className="text-xl font-bold">{a.name}</div>
+            <div className="mt-2">
               <StatusChip status={a.status} />
             </div>
           </div>
@@ -26,14 +29,12 @@ export function ScopeBoard({
               Lock it
             </Button>
           ) : a.status === "locked" ? (
-            <span className="shrink-0 text-sm font-medium text-info">
-              🔒 Secured
-            </span>
+            <span className="label text-ink">🔒 Secured</span>
           ) : (
-            <span className="shrink-0 text-sm text-muted">—</span>
+            <span className="label text-muted">—</span>
           )}
-        </div>
+        </li>
       ))}
-    </div>
+    </ul>
   );
 }
