@@ -2,13 +2,14 @@ import { randomUUID } from "node:crypto";
 import { mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import type { Asset, Incident, LogEvent, MoneyResult } from "@/app/_client/types";
+import type { Asset, Incident, LogEvent, MoneyResult, ScopeAction } from "@/app/_client/types";
 import { initialAssets } from "./scope";
 
 export interface RecordData {
   incident: Incident;
   assets: Asset[];
   events: LogEvent[];
+  reportedActions?: ScopeAction[];
   money?: MoneyResult;
 }
 
@@ -35,6 +36,7 @@ export function createRecord(data: Omit<Incident, "id" | "createdAt">): RecordDa
     incident,
     assets: initialAssets(),
     events: [{ time: createdAt, text: `Incident opened — ${incident.scamType}` }],
+    reportedActions: [],
   };
   saveRecord(record);
   return record;

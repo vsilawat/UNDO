@@ -48,14 +48,29 @@ export async function getTransactions(): Promise<Omit<MoneyTxn, "flagged" | "rea
   }));
 }
 
-export function traceMoney(transactions: Omit<MoneyTxn, "flagged" | "reason">[]): MoneyResult {
+const paymentChannels = [
+  /gift\s?cards?/i,
+  /\b(?:zelle|venmo|cash\s?app)\b/i,
+  /\bwire\b/i,
+  /\b(?:bitcoin|crypto)\b/i,
+];
+
+export function traceMoney(
+  transactions: Omit<MoneyTxn, "flagged" | "reason">[],
+  context: { message: string; sentMoney: boolean },
+): MoneyResult {
+  const mentionedChannels = paymentChannels.filter((pattern) => pattern.test(context.message));
   const traced: MoneyTxn[] = transactions.map((transaction) => {
-    const suspicious = /gift\s?card|wire|crypto|zelle|venmo|unknown payee/i.test(transaction.payee);
-    const flagged = transaction.amount >= 100 && suspicious;
+    const suspicious = paymentChannels.some((pattern) => pattern.test(transaction.payee));
+    const matchesMessage = mentionedChannels.some((pattern) => pattern.test(transaction.payee));
+    const flagged = context.sentMoney && transaction.amount >= 100 &&
+      (mentionedChannels.length ? matchesMessage : suspicious);
     return {
       ...transaction,
       flagged,
-      ...(flagged ? { reason: "Payment channel and amount match common scam patterns; verify with your bank" } : {}),
+      ...(flagged ? { reason: matchesMessage
+        ? "Payment channel matches the message; verify this example with your bank"
+        : "You reported sending money; review this example payment with your bank" } : {}),
     };
   });
   const totalAtRisk = Math.round(traced.reduce((sum, item) => sum + (item.flagged ? item.amount : 0), 0) * 100) / 100;

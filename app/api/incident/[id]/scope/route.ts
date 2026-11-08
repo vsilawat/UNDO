@@ -18,7 +18,14 @@ export async function PATCH(request: Request, { params }: Context) {
   const action = (body as { action?: unknown } | null)?.action;
   if (!isScopeAction(action)) return NextResponse.json({ error: "Invalid action" }, { status: 400 });
   record.assets = applyScope(record.assets, action);
-  note(record, `You reported: ${action.replaceAll("_", " ")}`);
+  record.reportedActions ??= record.events
+    .map((event) => event.text.replace(/^You reported: /, "").replaceAll(" ", "_"))
+    .filter(isScopeAction);
+  if (!record.reportedActions.includes(action)) {
+    record.reportedActions.push(action);
+    record.money = undefined;
+    note(record, `You reported: ${action.replaceAll("_", " ")}`);
+  }
   saveRecord(record);
   return NextResponse.json({ assets: record.assets });
 }
