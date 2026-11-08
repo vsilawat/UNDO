@@ -3,12 +3,11 @@ import { useState } from "react";
 import type { ScopeAction } from "@/app/_client/types";
 import { Button, Card } from "./ui";
 
-// One question per screen, big buttons, no tutorial — easy under stress.
-const QUESTIONS: { action: ScopeAction; q: string }[] = [
-  { action: "clicked_link", q: "Did you click a link in the message?" },
-  { action: "shared_code", q: "Did you share a verification code or OTP?" },
-  { action: "shared_password", q: "Did you type or share a password?" },
-  { action: "sent_money", q: "Did you send money, Zelle, or buy gift cards?" },
+const QUESTIONS: { action: ScopeAction; q: string; hint: string }[] = [
+  { action: "clicked_link", q: "Did you click a link in the message?", hint: "Even just opening it counts." },
+  { action: "shared_code", q: "Did you share a verification code or OTP?", hint: "The 6-digit code texted to you." },
+  { action: "shared_password", q: "Did you type or share a password?", hint: "On their site or over the phone." },
+  { action: "sent_money", q: "Did you send money, Zelle, or buy gift cards?", hint: "Any payment to them." },
 ];
 
 export function ActionFlow({
@@ -24,13 +23,12 @@ export function ActionFlow({
   if (done) {
     return (
       <Card className="text-center">
-        <p className="text-sm font-bold uppercase tracking-widest text-ok">
-          ✓ Triage complete
-        </p>
+        <div className="text-4xl">✅</div>
+        <p className="mt-3 text-xl font-bold">All set</p>
         <p className="mt-1 text-sm text-muted">
-          Scope updated below. Lock anything compromised.
+          We know what&apos;s exposed. Let&apos;s lock it down.
         </p>
-        <Button className="mt-4" onClick={onDone}>
+        <Button size="lg" className="mt-5 w-full" onClick={onDone}>
           Continue →
         </Button>
       </Card>
@@ -44,27 +42,17 @@ export function ActionFlow({
   };
 
   return (
-    <Card>
-      <div className="mb-1 flex justify-between text-xs tracking-widest text-muted">
-        <span>TRIAGE</span>
-        <span>
-          {String(i + 1).padStart(2, "0")}/{String(QUESTIONS.length).padStart(2, "0")}
-        </span>
+    <Card key={i} className="animate-rise">
+      <div className="text-sm text-muted">
+        Question {i + 1} of {QUESTIONS.length}
       </div>
-      <div className="mb-4 flex gap-1">
-        {QUESTIONS.map((_, idx) => (
-          <div
-            key={idx}
-            className={`h-1 flex-1 ${idx <= i ? "bg-warn" : "bg-surface-2"}`}
-          />
-        ))}
-      </div>
-      <p className="text-lg font-bold">{cur.q}</p>
-      <div className="mt-5 grid grid-cols-2 gap-3">
-        <Button variant="danger" onClick={() => answer(true)}>
+      <p className="mt-2 text-2xl font-bold leading-snug">{cur.q}</p>
+      <p className="mt-1 text-sm text-muted">{cur.hint}</p>
+      <div className="mt-6 grid grid-cols-2 gap-3">
+        <Button variant="danger" size="lg" onClick={() => answer(true)}>
           Yes
         </Button>
-        <Button variant="ghost" onClick={() => answer(false)}>
+        <Button variant="ghost" size="lg" onClick={() => answer(false)}>
           No
         </Button>
       </div>

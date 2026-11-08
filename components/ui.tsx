@@ -8,56 +8,62 @@ export function Card({
   children: ReactNode;
   className?: string;
 }) {
-  return (
-    <div
-      className={`tac-card border border-border bg-surface p-5 ${className}`}
-    >
-      {children}
-    </div>
-  );
+  return <div className={`card p-6 ${className}`}>{children}</div>;
 }
 
 type BtnProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: "primary" | "ghost" | "danger";
+  size?: "md" | "lg";
 };
 
 export function Button({
   variant = "primary",
+  size = "md",
   className = "",
   ...props
 }: BtnProps) {
   const base =
-    "inline-flex items-center justify-center gap-2 px-5 py-3 text-sm font-bold uppercase tracking-wider transition disabled:opacity-40 disabled:cursor-not-allowed";
+    "inline-flex items-center justify-center gap-2 rounded-full font-semibold transition active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed";
+  const sizing = size === "lg" ? "px-7 py-4 text-base" : "px-5 py-3 text-sm";
   const styles = {
-    primary: "bg-warn text-brand-ink hover:brightness-110",
-    ghost: "border border-border bg-surface-2 text-text hover:border-warn",
+    primary:
+      "bg-gradient-to-b from-[#ff6474] to-[#ff3b4d] text-white shadow-[0_8px_24px_-8px_rgba(255,77,94,0.7)] hover:brightness-110",
+    ghost: "border border-border bg-elevated text-text hover:border-muted",
     danger:
-      "bg-crit text-[#1a0000] hover:brightness-110 shadow-[0_0_12px_rgba(255,59,59,0.4)]",
+      "bg-gradient-to-b from-[#ff6474] to-[#ff3b4d] text-white shadow-[0_8px_24px_-8px_rgba(255,77,94,0.7)] hover:brightness-110",
   }[variant];
-  return <button className={`${base} ${styles} ${className}`} {...props} />;
+  return <button className={`${base} ${sizing} ${styles} ${className}`} {...props} />;
 }
 
 const STATUS_META: Record<
   AssetStatus,
-  { label: string; dot: string; text: string }
+  { label: string; dot: string; chip: string }
 > = {
-  safe: { label: "SAFE", dot: "bg-ok", text: "text-ok" },
-  at_risk: { label: "AT_RISK", dot: "bg-warn", text: "text-warn" },
-  compromised: { label: "COMPROMISED", dot: "bg-crit", text: "text-crit" },
-  locked: { label: "LOCKED", dot: "bg-info", text: "text-info" },
+  safe: { label: "Safe", dot: "bg-ok", chip: "text-ok bg-ok/10 border-ok/20" },
+  at_risk: {
+    label: "At risk",
+    dot: "bg-warn",
+    chip: "text-warn bg-warn/10 border-warn/20",
+  },
+  compromised: {
+    label: "Compromised",
+    dot: "bg-crit",
+    chip: "text-crit bg-crit/10 border-crit/25",
+  },
+  locked: {
+    label: "Locked",
+    dot: "bg-info",
+    chip: "text-info bg-info/10 border-info/20",
+  },
 };
 
 export function StatusChip({ status }: { status: AssetStatus }) {
   const m = STATUS_META[status];
-  const glow =
-    status === "compromised"
-      ? "shadow-[0_0_8px_2px_rgba(255,59,59,0.6)]"
-      : status === "at_risk"
-        ? "shadow-[0_0_8px_1px_rgba(255,176,32,0.5)]"
-        : "";
   return (
-    <span className={`inline-flex items-center gap-2 text-sm font-bold ${m.text}`}>
-      <span className={`h-2.5 w-2.5 rounded-full ${m.dot} ${glow}`} />
+    <span
+      className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold ${m.chip}`}
+    >
+      <span className={`h-2 w-2 rounded-full ${m.dot}`} />
       {m.label}
     </span>
   );
@@ -74,12 +80,12 @@ export function SectionTitle({
 }) {
   return (
     <div className="mb-4 flex items-baseline gap-3">
-      <span className="grid h-6 w-6 shrink-0 place-items-center border border-warn/50 text-xs font-bold text-warn">
-        {String(n).padStart(2, "0")}
+      <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-elevated text-xs font-bold text-warn">
+        {n}
       </span>
       <div>
-        <h2 className="text-sm font-bold uppercase tracking-widest">{title}</h2>
-        {sub && <p className="text-xs text-muted">{sub}</p>}
+        <h2 className="text-lg font-bold">{title}</h2>
+        {sub && <p className="text-sm text-muted">{sub}</p>}
       </div>
     </div>
   );

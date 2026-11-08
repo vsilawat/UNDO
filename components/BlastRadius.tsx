@@ -1,61 +1,52 @@
 import type { MoneyResult } from "@/app/_client/types";
 import { Card } from "./ui";
 
-const REC_META = {
-  freeze: { label: "FREEZE ACCOUNT", color: "text-crit", border: "border-crit" },
-  dispute: { label: "DISPUTE CHARGES", color: "text-warn", border: "border-warn" },
-  monitor: { label: "MONITOR", color: "text-ok", border: "border-ok" },
+const REC = {
+  freeze: { label: "Freeze the account", tw: "text-crit bg-crit/10 border-crit/25" },
+  dispute: { label: "Dispute these charges", tw: "text-warn bg-warn/10 border-warn/25" },
+  monitor: { label: "Monitor", tw: "text-ok bg-ok/10 border-ok/25" },
 };
 
 export function BlastRadius({ money }: { money: MoneyResult }) {
-  const rec = REC_META[money.recommendation];
+  const rec = REC[money.recommendation];
   return (
-    <Card>
-      <div className="flex flex-wrap items-end justify-between gap-2 border-b border-border pb-3">
+    <Card className="!p-0">
+      <div className="flex flex-wrap items-end justify-between gap-3 p-6">
         <div>
-          <div className="text-xs tracking-widest text-muted">TOTAL AT RISK</div>
-          <div className="text-3xl font-black text-crit tabular-nums">
+          <div className="text-sm text-muted">Total at risk</div>
+          <div className="mt-0.5 text-4xl font-black tabular-nums text-crit">
             ${money.totalAtRisk.toLocaleString(undefined, { minimumFractionDigits: 2 })}
           </div>
         </div>
-        <div className={`border px-3 py-1 text-sm font-bold tracking-widest ${rec.color} ${rec.border}`}>
+        <div className={`rounded-full border px-4 py-2 text-sm font-semibold ${rec.tw}`}>
           {rec.label}
         </div>
       </div>
 
-      <table className="mt-3 w-full text-sm">
-        <thead className="text-left text-xs tracking-widest text-muted">
-          <tr>
-            <th className="py-2">PAYEE</th>
-            <th className="py-2">DATE</th>
-            <th className="py-2 text-right">AMOUNT</th>
-          </tr>
-        </thead>
-        <tbody>
-          {money.transactions.map((t) => (
-            <tr
-              key={t.id}
-              className={`border-t border-border ${t.flagged ? "bg-crit/10" : ""}`}
+      <div className="divide-y divide-border border-t border-border">
+        {money.transactions.map((t) => (
+          <div
+            key={t.id}
+            className={`flex items-center justify-between gap-3 px-6 py-3.5 ${t.flagged ? "bg-crit/[0.06]" : ""}`}
+          >
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                {t.flagged && <span className="text-crit">⚑</span>}
+                <span className="truncate font-medium">{t.payee}</span>
+              </div>
+              {t.reason && <div className="mt-0.5 text-xs text-crit">{t.reason}</div>}
+              <div className="mono mt-0.5 text-xs text-muted">{t.date}</div>
+            </div>
+            <div
+              className={`mono shrink-0 tabular-nums ${t.flagged ? "font-bold text-crit" : "text-text"}`}
             >
-              <td className="py-2.5">
-                <div className="flex items-center gap-2">
-                  {t.flagged && <span className="text-crit">⚑</span>}
-                  <span className="font-medium">{t.payee}</span>
-                </div>
-                {t.reason && (
-                  <div className="mt-0.5 text-xs text-crit">// {t.reason}</div>
-                )}
-              </td>
-              <td className="py-2.5 tabular-nums text-muted">{t.date}</td>
-              <td className="py-2.5 text-right tabular-nums">
-                ${t.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <p className="mt-2 text-xs text-info">
-        // traced via Nessie account data — flagged rows match scam pattern
+              ${t.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+            </div>
+          </div>
+        ))}
+      </div>
+      <p className="px-6 py-3 text-xs text-info">
+        Traced via Nessie account data. Flagged rows match the scam pattern.
       </p>
     </Card>
   );

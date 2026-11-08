@@ -1,7 +1,4 @@
-// Goal-Gradient + Zeigarnik: show progress and what's left so the user is
-// pulled toward completion. Serial Position: labels readable at a glance.
-export type StepState = "done" | "current" | "upcoming";
-
+// Goal-Gradient + Zeigarnik: visible progress pulls the user to finish.
 export function Stepper({
   steps,
   current,
@@ -12,39 +9,36 @@ export function Stepper({
   const pct = Math.round((current / (steps.length - 1)) * 100);
   return (
     <div className="mb-8">
-      <div className="mb-3 flex items-center justify-between text-xs tracking-widest text-muted">
-        <span>
-          STEP {String(current + 1).padStart(2, "0")}/
-          {String(steps.length).padStart(2, "0")}
+      <div className="mb-3 flex items-center justify-between text-sm">
+        <span className="font-semibold text-text">{steps[current]}</span>
+        <span className="text-muted">
+          Step {current + 1} of {steps.length}
         </span>
-        <span className="text-warn">{steps[current]}</span>
       </div>
-      {/* single progress track — one thing to read, not five */}
-      <div className="h-1 w-full bg-surface-2">
+      <div className="relative h-2 w-full overflow-hidden rounded-full bg-surface-2">
         <div
-          className="h-full bg-warn transition-all duration-500"
-          style={{ width: `${pct}%` }}
+          className="h-full rounded-full bg-gradient-to-r from-warn to-crit transition-all duration-500"
+          style={{ width: `${Math.max(pct, 6)}%` }}
         />
       </div>
       <div className="mt-3 flex justify-between">
         {steps.map((s, i) => {
-          const state: StepState =
-            i < current ? "done" : i === current ? "current" : "upcoming";
+          const done = i < current;
+          const cur = i === current;
           return (
-            <div key={s} className="flex flex-col items-center gap-1">
-              <span
-                className={
-                  "grid h-5 w-5 place-items-center text-[10px] font-bold " +
-                  (state === "done"
-                    ? "bg-ok text-[#04120b]"
-                    : state === "current"
-                      ? "border border-warn text-warn"
-                      : "border border-border text-muted")
-                }
-              >
-                {state === "done" ? "✓" : i + 1}
-              </span>
-            </div>
+            <span
+              key={s}
+              className={
+                "grid h-6 w-6 place-items-center rounded-full text-[11px] font-bold transition " +
+                (done
+                  ? "bg-ok text-[#04120b]"
+                  : cur
+                    ? "bg-gradient-to-b from-[#ff6474] to-[#ff3b4d] text-white shadow-[0_4px_12px_-4px_rgba(255,77,94,0.8)]"
+                    : "bg-surface-2 text-muted")
+              }
+            >
+              {done ? "✓" : i + 1}
+            </span>
           );
         })}
       </div>

@@ -100,6 +100,7 @@ export default function IncidentPage({
       <Stepper steps={STEPS} current={step} />
 
       {/* One step on screen at a time — Hick's Law, lower cognitive load. */}
+      <div key={step} className="animate-rise">
       {step === 0 && (
         <div className="space-y-5">
           <VerdictCard incident={incident} />
@@ -189,6 +190,7 @@ export default function IncidentPage({
           </details>
         </div>
       )}
+      </div>
     </div>
   );
 }

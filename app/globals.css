@@ -1,29 +1,33 @@
 @import "tailwindcss";
 
-/* UNDO — Tactical Alert (SOC) theme. Near-black, red/amber, mono, LED status. */
+/* UNDO — premium security product look. Dark, depth, one signature accent. */
 @theme {
-  --color-bg: #07090d;
-  --color-surface: #0d1117;
-  --color-surface-2: #141b24;
-  --color-border: #202a36;
-  --color-text: #e6edf3;
-  --color-muted: #7d8ea3;
+  --color-bg: #0a0b10;
+  --color-surface: #13151d;
+  --color-surface-2: #1b1e28;
+  --color-elevated: #222633;
+  --color-border: #2a2f3d;
+  --color-text: #f2f4f8;
+  --color-muted: #9aa4b8;
 
-  --color-crit: #ff3b3b;
-  --color-warn: #ffb020;
-  --color-ok: #39d98a;
-  --color-info: #4aa8ff;
+  --color-crit: #ff4d5e;
+  --color-warn: #ffc14d;
+  --color-ok: #4ade9b;
+  --color-info: #6aa8ff;
 
-  /* status aliases used by StatusChip */
-  --color-safe: #39d98a;
-  --color-risk: #ffb020;
-  --color-danger: #ff3b3b;
-  --color-locked: #4aa8ff;
-  --color-brand: #ffb020;
-  --color-brand-ink: #1a1200;
+  --color-safe: #4ade9b;
+  --color-risk: #ffc14d;
+  --color-danger: #ff4d5e;
+  --color-locked: #6aa8ff;
+  --color-brand: #ff4d5e;
+  --color-brand-ink: #1a0004;
 
-  --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", "Fira Code", Menlo,
-    monospace;
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace;
+
+  --radius-lg: 14px;
+  --radius-xl: 20px;
 }
 
 html,
@@ -31,54 +35,71 @@ body {
   background: var(--color-bg);
   color: var(--color-text);
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 body {
-  font-family: var(--font-mono);
-  /* faint grid + vignette — SOC console feel */
+  font-family: var(--font-sans);
+  letter-spacing: -0.01em;
+  /* soft ambient glow instead of a hard grid */
   background-image:
-    linear-gradient(rgba(74, 168, 255, 0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(74, 168, 255, 0.035) 1px, transparent 1px),
-    radial-gradient(ellipse at top, rgba(255, 59, 59, 0.06), transparent 60%);
-  background-size: 40px 40px, 40px 40px, 100% 100%;
+    radial-gradient(900px 500px at 50% -10%, rgba(255, 77, 94, 0.1), transparent 70%),
+    radial-gradient(700px 500px at 100% 0%, rgba(106, 168, 255, 0.06), transparent 60%);
+  background-attachment: fixed;
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-warn);
-  outline-offset: 2px;
+  outline: 2px solid var(--color-info);
+  outline-offset: 3px;
+  border-radius: 6px;
 }
 
-/* soft scanline shimmer on the LIVE dot */
+/* step entrance — gives the flow a sense of motion/progress */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-rise {
+  animation: rise 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
 @keyframes pulse-live {
   0%, 100% { opacity: 1; }
-  50% { opacity: 0.3; }
+  50% { opacity: 0.35; }
 }
 .live-dot {
-  animation: pulse-live 1.4s ease-in-out infinite;
+  animation: pulse-live 1.6s ease-in-out infinite;
 }
 
-/* corner ticks for tactical cards */
-.tac-card {
-  position: relative;
+@keyframes sheen {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
 }
-.tac-card::before,
-.tac-card::after {
-  content: "";
-  position: absolute;
-  width: 10px;
-  height: 10px;
-  border-color: var(--color-warn);
-  opacity: 0.55;
+
+.card {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.025), transparent 40%),
+    var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.04) inset,
+    0 20px 40px -24px rgba(0, 0, 0, 0.9);
 }
-.tac-card::before {
-  top: -1px;
-  left: -1px;
-  border-top: 2px solid;
-  border-left: 2px solid;
+
+.mono {
+  font-family: var(--font-mono);
 }
-.tac-card::after {
-  bottom: -1px;
-  right: -1px;
-  border-bottom: 2px solid;
-  border-right: 2px solid;
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-rise,
+  .live-dot {
+    animation: none;
+  }
 }
