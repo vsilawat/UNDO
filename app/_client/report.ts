@@ -39,22 +39,13 @@ export function buildReport(
     ``,
   ];
   if (money) {
-    const recurringYear = Math.round((money.recurringAtRisk ?? 0) * 12 * 100) / 100;
-    const damagePrevented = Math.round((money.balanceExposed ?? 0) + money.totalAtRisk + recurringYear);
-    if (damagePrevented > 0) {
-      lines.push(
-        `DAMAGE WITHIN REACH OF RECOVERY (if you act on the freeze order now): $${damagePrevented.toLocaleString()}`,
-        `  = $${(money.balanceExposed ?? 0).toFixed(2)} to freeze + $${money.totalAtRisk.toFixed(2)} to dispute + $${recurringYear.toFixed(2)}/yr autopay to cancel`,
-        ``,
-      );
-    }
     if (money.accounts?.length) {
       lines.push(
-        `FREEZE ORDER — TRIAGE QUEUE (demo or Nessie sandbox balances):`,
+        `SANDBOX ACCOUNT REVIEW ORDER (illustrative):`,
         `Accounts touched: ${money.accountsTouched ?? 0} of ${money.accounts.length}`,
-        `Balance in exposed accounts: $${(money.balanceExposed ?? 0).toFixed(2)}`,
+        `Sandbox balance flagged for review: $${(money.balanceExposed ?? 0).toFixed(2)}`,
         ...money.accounts.map(
-          (a) => `  ${a.priority}. ${a.nickname} (${a.type}) $${a.balance.toFixed(2)} — ${a.priorityReason}; ~${a.drainMinutes} min to drain${a.touched ? " [FLAGGED]" : ""}`,
+          (a) => `  ${a.priority}. ${a.nickname} (${a.type}) $${a.balance.toFixed(2)} — ${a.priorityReason}${a.touched ? " [FLAGGED]" : ""}`,
         ),
         ``,
       );
@@ -74,7 +65,7 @@ export function buildReport(
     lines.push(``);
     if (money.flow?.length) {
       lines.push(
-        `FUND-FLOW TRACE (${money.flowModeled ? "downstream hops modeled, not live" : "first hops live"}):`,
+        `ILLUSTRATIVE FUND FLOW (all hops and timing modeled, not observed):`,
         ...money.flow.map(
           (h) =>
             `  - ${h.from} → ${h.to}  $${h.amount.toFixed(2)} via ${h.medium ?? "transfer"}${h.minutesAfter ? ` (+${h.minutesAfter} min)` : ""}${h.final ? " [likely unrecoverable]" : ""}`,
@@ -84,7 +75,7 @@ export function buildReport(
     }
     if (money.autopays?.some((b) => b.suspicious)) {
       lines.push(
-        `RECURRING CHARGES (suspicious autopay): $${(money.recurringAtRisk ?? 0).toFixed(2)}/mo`,
+        `RECURRING CHARGES TO VERIFY (sandbox example): $${(money.recurringAtRisk ?? 0).toFixed(2)}/mo`,
         ...money.autopays
           .filter((b) => b.suspicious)
           .map((b) => `  - ${b.payee} $${b.amount.toFixed(2)}/${b.cadence} set up ${b.createdAt} (${b.reason || "flagged"})`),

@@ -1,13 +1,7 @@
-import type { FlowHop, MoneyResult } from "@/app/_client/types";
+import type { MoneyResult } from "@/app/_client/types";
 
 function money(n: number) {
   return `$${n.toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
-}
-
-function timing(h: FlowHop) {
-  if (h.minutesAfter === undefined) return null;
-  if (h.minutesAfter === 0) return "start";
-  return `+${h.minutesAfter} min`;
 }
 
 /**
@@ -20,16 +14,11 @@ export function MoneyFlow({ money: result }: { money: MoneyResult }) {
   if (flow.length === 0) return null;
 
   const nodes = [flow[0].from, ...flow.map((h) => h.to)];
-  const lossPct =
-    flow.length > 1
-      ? Math.round((1 - flow[flow.length - 1].amount / flow[0].amount) * 100)
-      : 0;
-
   return (
     <div className="mt-8">
       <div className="label mb-3 flex items-center gap-2 text-red">
         <span className="inline-block h-3 w-1.5 bg-red" />
-        Fund-flow trace — where the money goes next
+        Illustrative fund flow — what could happen next
       </div>
 
       <div className="border-2 border-ink">
@@ -61,9 +50,6 @@ export function MoneyFlow({ money: result }: { money: MoneyResult }) {
                     {money(hop.amount)}
                   </span>
                   <span className="label text-muted">via {hop.medium}</span>
-                  {timing(hop) && (
-                    <span className="label text-muted">· {timing(hop)}</span>
-                  )}
                   {hop.live ? (
                     <span className="border border-ink px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider">
                       live
@@ -75,7 +61,7 @@ export function MoneyFlow({ money: result }: { money: MoneyResult }) {
                   )}
                   {hop.final && (
                     <span className="label font-bold text-red">
-                      ⚑ likely unrecoverable
+                      ⚑ example cash-out
                     </span>
                   )}
                 </div>
@@ -102,15 +88,8 @@ export function MoneyFlow({ money: result }: { money: MoneyResult }) {
 
       <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
         <p className="label text-muted">
-          {result.flowModeled
-            ? "Downstream hops are a model of a typical laundering path, not live data. Act before the first hop clears."
-            : "First hops are live Nessie transfers. Downstream hops are modeled."}
+          This entire path is a modeled illustration, not observed transfers.
         </p>
-        {lossPct > 0 && (
-          <span className="label font-bold text-red">
-            ~{lossPct}% gone after {flow[flow.length - 1].minutesAfter ?? 0} min
-          </span>
-        )}
       </div>
     </div>
   );

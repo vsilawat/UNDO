@@ -163,13 +163,15 @@ export async function getScope(id: string): Promise<ScopeResult> {
 export async function getMoney(id: string): Promise<MoneyResult> {
   const s = db.get(id);
   if (!s) throw new Error("Incident not found");
+  const sentMoney = s.log.some((event) => event.text.startsWith("You reported: Sent money"));
   const transactions = [
     { id: "t1", amount: 12.4, payee: "Corner Coffee", date: "2026-11-05", flagged: false },
     { id: "t2", amount: 63.0, payee: "Grocery Mart", date: "2026-11-06", flagged: false },
-    { id: "t3", amount: 4800, payee: "Unknown — Zelle to new payee", date: "2026-11-07", flagged: true, reason: "Large transfer to a payee added minutes ago" },
-    { id: "t4", amount: 199.99, payee: "Gift card reseller", date: "2026-11-07", flagged: true, reason: "Gift card purchase matches scam instructions" },
+    { id: "t3", amount: 4800, payee: "Unknown — Zelle to new payee", date: "2026-11-07", flagged: sentMoney, reason: sentMoney ? "Sandbox transaction to verify" : undefined },
+    { id: "t4", amount: 199.99, payee: "Gift card reseller", date: "2026-11-07", flagged: sentMoney, reason: sentMoney ? "Sandbox transaction to verify" : undefined },
   ];
   const totalAtRisk = transactions.filter((t) => t.flagged).reduce((n, t) => n + t.amount, 0);
+  if (!sentMoney) return { transactions, totalAtRisk: 0, recommendation: "monitor", flow: [], autopays: [], recurringAtRisk: 0, accounts: [], accountsTouched: 0, balanceExposed: 0 };
   const origin = transactions.filter((t) => t.flagged).reduce((a, b) => (b.amount > a.amount ? b : a));
   const flow = [
     { from: "Your account", to: origin.payee, amount: origin.amount, medium: "zelle", minutesAfter: 0, live: false },

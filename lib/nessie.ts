@@ -121,14 +121,14 @@ function summarizeAccounts(
 
   const ranked: AccountExposure[] = scored.map((s, i) => {
     const reason = s.touched
-      ? "Flagged activity — freeze first"
+      ? "Sandbox activity flagged for review"
       : s.stealable <= 0
-        ? "No cash to pull — lowest urgency"
+        ? "No positive cash balance in this sandbox account"
         : s.liquidity >= 1
-          ? "Highest liquid balance — drains fastest"
+          ? "Checking balance in the sandbox example"
           : s.liquidity >= 0.8
-            ? "Fraud charges can post quickly"
-            : "Large balance but slower for a thief to move";
+            ? "Card activity in the sandbox example"
+            : "Savings balance in the sandbox example";
     return {
       ...s.base,
       touched: s.touched,
@@ -166,16 +166,16 @@ async function getBills(): Promise<Autopay[]> {
  * (most recent setup) with an unfamiliar or payment-processor-style payee.
  * Heuristic + transparent reason; never auto-cancels anything.
  */
-function detectAutopays(bills: Autopay[]): { autopays: Autopay[]; recurringAtRisk: number } {
+function detectAutopays(bills: Autopay[], sentMoney: boolean): { autopays: Autopay[]; recurringAtRisk: number } {
   if (bills.length === 0) return { autopays: [], recurringAtRisk: 0 };
   const newest = bills.reduce((a, b) => (b.createdAt > a.createdAt ? b : a)).createdAt;
   const vaguePayee = /secure|pay|service|verify|support|protect|billing/i;
   const flagged = bills.map((b) => {
     const recent = b.createdAt === newest && bills.length > 1;
     const vague = vaguePayee.test(b.payee);
-    const suspicious = recent && vague;
+    const suspicious = sentMoney && recent && vague;
     return suspicious
-      ? { ...b, suspicious, reason: "Recurring charge set up during the incident window to an unfamiliar payee" }
+      ? { ...b, suspicious, reason: "Newest recurring bill has a generic payee name; verify it with your provider" }
       : { ...b, suspicious: false };
   });
   const recurringAtRisk =
@@ -226,21 +226,13 @@ const round2 = (n: number) => Math.round(n * 100) / 100;
  * (when provided) seed the first hops; downstream hops are a MODEL of how such
  * funds typically move, flagged `live: false` so the UI never claims them as real.
  */
-function buildFlow(
-  flagged: MoneyTxn[],
-  liveTransfers: FlowHop[],
-): { flow: FlowHop[]; modeled: boolean } {
+function buildFlow(flagged: MoneyTxn[]): { flow: FlowHop[]; modeled: boolean } {
   if (!flagged.length) return { flow: [], modeled: false };
   const origin = flagged.reduce((a, b) => (b.amount > a.amount ? b : a));
   const medium = channelOf(origin.payee);
 
-  if (liveTransfers.length) {
-    // Real outbound transfers are the ground truth for the first hops.
-    const flow = liveTransfers.map((hop, i) => ({ ...hop, minutesAfter: i === 0 ? 0 : i * 6 }));
-    return { flow, modeled: false };
-  }
-
-  // Demo mode: one modeled laundering path, clearly labeled as a model.
+  // Nessie does not establish a link from a flagged purchase to downstream
+  // transfers. Keep the entire example path explicitly modeled.
   const flow: FlowHop[] = [
     { from: "Your account", to: origin.payee, amount: round2(origin.amount), medium, minutesAfter: 0, live: false },
     { from: origin.payee, to: "Pass-through account", amount: round2(origin.amount * 0.92), medium: "internal transfer", minutesAfter: 7, live: false },
@@ -254,7 +246,6 @@ export function traceMoney(
   context: {
     message: string;
     sentMoney: boolean;
-    liveTransfers?: FlowHop[];
     bills?: Autopay[];
     accounts?: BaseAccount[];
   },
@@ -275,11 +266,11 @@ export function traceMoney(
   });
   const totalAtRisk = Math.round(traced.reduce((sum, item) => sum + (item.flagged ? item.amount : 0), 0) * 100) / 100;
   const flaggedTxns = traced.filter((t) => t.flagged);
-  const { flow, modeled } = buildFlow(flaggedTxns, context.liveTransfers ?? []);
-  const { autopays, recurringAtRisk } = detectAutopays(context.bills ?? []);
+  const { flow, modeled } = buildFlow(flaggedTxns);
+  const { autopays, recurringAtRisk } = detectAutopays(context.bills ?? [], context.sentMoney);
   const hasFlagged = flaggedTxns.length > 0 || recurringAtRisk > 0;
   const { accounts, accountsTouched, balanceExposed } = summarizeAccounts(
-    context.accounts ?? [],
+    hasFlagged ? (context.accounts ?? []) : [],
     hasFlagged,
   );
   return {

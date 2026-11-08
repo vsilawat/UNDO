@@ -5,33 +5,32 @@ function money(n: number) {
 }
 
 /**
- * Recurring-bill (autopay) review. Scammers plant small monthly charges that
- * drain an account long after the first hit. We flag bills set up in the
- * incident window to unfamiliar payees — and show the yearly cost if ignored.
+ * Illustrative recurring-bill review. The rule marks a recent sandbox bill
+ * with a generic payee name for verification after money was reported sent.
  */
 export function AutopayTrap({ money: result }: { money: MoneyResult }) {
   const bills = result.autopays ?? [];
-  if (bills.length === 0) return null;
   const flagged = bills.filter((b) => b.suspicious);
+  if (flagged.length === 0) return null;
   const monthly = result.recurringAtRisk ?? 0;
 
   return (
     <div className="mt-8">
       <div className="label mb-3 flex items-center gap-2 text-red">
         <span className="inline-block h-3 w-1.5 bg-red" />
-        Recurring charges — the slow drain
+        Recurring charges to review
       </div>
 
       {flagged.length > 0 && (
         <div className="flex flex-wrap items-end justify-between gap-x-4 gap-y-2 border-y-2 border-ink py-4">
           <div>
-            <div className="label text-muted">Suspicious autopay</div>
+            <div className="label text-muted">Sandbox autopay to verify</div>
             <div className="mt-1 text-3xl font-black tabular-nums text-red sm:text-4xl">
               {money(monthly)}<span className="text-xl">/mo</span>
             </div>
           </div>
           <div className="border-2 border-red px-4 py-2 text-xs font-bold uppercase tracking-wider text-red">
-            {money(monthly * 12)}/yr if ignored
+            {money(monthly * 12)}/yr if it continues
           </div>
         </div>
       )}
@@ -67,8 +66,8 @@ export function AutopayTrap({ money: result }: { money: MoneyResult }) {
 
       {flagged.length > 0 && (
         <p className="label mt-4 text-muted">
-          Cancel the flagged autopay with your bank or card provider. UNDO does
-          not cancel it for you.
+          Verify this sandbox example with your bank or card provider before
+          taking action. UNDO does not cancel payments.
         </p>
       )}
     </div>

@@ -7,10 +7,8 @@ function money(n: number) {
 }
 
 /**
- * Freeze-order triage queue. UNDO ranks every account by money-at-risk × how
- * fast it can leave (flagged accounts first), so the victim gets an ordered
- * "freeze this first" playbook instead of a flat list. Nessie only supplies the
- * balances — the triage logic is ours.
+ * Illustrative account review queue for sandbox data. The priority is a
+ * heuristic and does not establish actual exposure or time to loss.
  */
 export function AccountExposure({ money: result }: { money: MoneyResult }) {
   const accounts = result.accounts ?? [];
@@ -23,12 +21,12 @@ export function AccountExposure({ money: result }: { money: MoneyResult }) {
     <div className="mt-8">
       <div className="label mb-3 flex items-center gap-2 text-red">
         <span className="inline-block h-3 w-1.5 bg-red" />
-        Freeze order — triage queue
+        Sandbox account review order
       </div>
 
       <div className="flex flex-wrap items-end justify-between gap-x-4 gap-y-2 border-y-2 border-ink py-4">
         <div className="min-w-0">
-          <div className="label text-muted">Balance in exposed accounts</div>
+        <div className="label text-muted">Sandbox balance flagged for review</div>
           <div className="mt-1 text-3xl font-black tabular-nums text-red sm:text-4xl">
             {money(exposed)}
           </div>
@@ -42,10 +40,10 @@ export function AccountExposure({ money: result }: { money: MoneyResult }) {
       <div className="mt-4 border-l-4 border-red bg-surface-2 p-4">
         <div className="label text-muted">Do this first</div>
         <div className="mt-1 text-xl font-black">
-          Freeze {first.nickname}
+          Contact the provider for {first.nickname}
         </div>
         <div className="label mt-1 text-muted">
-          {first.priorityReason} · ~{first.drainMinutes} min to drain
+          {first.priorityReason}
         </div>
       </div>
 
@@ -71,7 +69,7 @@ export function AccountExposure({ money: result }: { money: MoneyResult }) {
               </div>
               <div className="label mt-0.5 text-red">{a.priorityReason}</div>
               <div className="label mt-0.5 text-muted">
-                {a.type} · ~{a.drainMinutes} min to drain
+                  {a.type} · sandbox account
               </div>
             </div>
             <div
@@ -85,8 +83,8 @@ export function AccountExposure({ money: result }: { money: MoneyResult }) {
         ))}
       </ol>
       <p className="label mt-4 text-muted">
-        Ranked by money at risk and how fast it can leave. Demo or Nessie
-        sandbox balances — freeze with your bank in this order.
+        Illustrative priority order for demo or Nessie sandbox accounts.
+        Check actual activity and urgency with your provider.
       </p>
     </div>
   );

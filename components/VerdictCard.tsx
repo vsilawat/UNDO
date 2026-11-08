@@ -52,10 +52,10 @@ export function VerdictCard({ incident }: { incident: Incident }) {
         </div>
       </div>
 
-      {/* Honest confidence: calibrated number + band, not a false 100%. */}
+      {/* Rule signal score; this is not a calibrated scam probability. */}
       <div className="mt-4 border-2 border-ink p-4">
         <div className="flex items-baseline justify-between">
-          <span className="label text-muted">Confidence ({b})</span>
+          <span className="label text-muted">Rule assessment score ({b})</span>
           <span className="font-mono text-2xl font-black tabular-nums">
             {pct}%
           </span>
@@ -64,14 +64,15 @@ export function VerdictCard({ incident }: { incident: Incident }) {
           <div className="h-full bg-red" style={{ width: `${pct}%` }} />
         </div>
         <p className="label mt-2 text-muted">
-          {b === "high"
+          {!incident.isScam
+            ? "Routine wording found; sender still unverified."
+            : b === "high"
             ? "Multiple strong scam signals in the wording."
             : b === "medium"
               ? "Some scam signals; treat as likely but verify."
               : "Weak signal — we are not sure. Verify before acting."}{" "}
-          Based on {incident.redFlags.length} wording signal
-          {incident.redFlags.length === 1 ? "" : "s"}, no message content sent to
-          any external model.
+          A rule score, not a measured probability. No message content is sent
+          to an external model.
         </p>
       </div>
 

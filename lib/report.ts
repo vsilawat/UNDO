@@ -21,16 +21,11 @@ export function buildReport(record: RecordData): string {
     "SCOPE",
     ...assets.map((asset) => `- ${asset.name}: ${assetStatus(asset.status)}`),
     "",
-    ...(money && (money.balanceExposed || money.totalAtRisk || money.recurringAtRisk) ? [
-      `DAMAGE WITHIN REACH OF RECOVERY (if you act on the freeze order now): $${Math.round((money.balanceExposed ?? 0) + money.totalAtRisk + (money.recurringAtRisk ?? 0) * 12).toLocaleString()}`,
-      `= $${(money.balanceExposed ?? 0).toFixed(2)} to freeze + $${money.totalAtRisk.toFixed(2)} to dispute + $${((money.recurringAtRisk ?? 0) * 12).toFixed(2)}/yr autopay to cancel`,
-      "",
-    ] : []),
     ...(money?.accounts?.length ? [
-      "FREEZE ORDER - TRIAGE QUEUE (demo or Nessie sandbox balances)",
+      "SANDBOX ACCOUNT REVIEW ORDER (illustrative)",
       `Accounts touched: ${money.accountsTouched ?? 0} of ${money.accounts.length}`,
-      `Balance in exposed accounts: $${(money.balanceExposed ?? 0).toFixed(2)}`,
-      ...money.accounts.map((a) => `${a.priority}. ${a.nickname} (${a.type}) $${a.balance.toFixed(2)} - ${a.priorityReason}; ~${a.drainMinutes} min to drain${a.touched ? " [FLAGGED]" : ""}`),
+      `Sandbox balance flagged for review: $${(money.balanceExposed ?? 0).toFixed(2)}`,
+      ...money.accounts.map((a) => `${a.priority}. ${a.nickname} (${a.type}) $${a.balance.toFixed(2)} - ${a.priorityReason}${a.touched ? " [FLAGGED]" : ""}`),
       "",
     ] : []),
     ...(money ? [
@@ -41,12 +36,12 @@ export function buildReport(record: RecordData): string {
       "",
     ] : []),
     ...(money?.flow?.length ? [
-      `FUND-FLOW TRACE (${money.flowModeled ? "downstream hops modeled, not live" : "first hops live"})`,
+      "ILLUSTRATIVE FUND FLOW (all hops and timing modeled, not observed)",
       ...money.flow.map((h) => `- ${h.from} -> ${h.to}: $${h.amount.toFixed(2)} via ${h.medium ?? "transfer"}${h.minutesAfter ? ` (+${h.minutesAfter} min)` : ""}${h.final ? " [likely unrecoverable]" : ""}`),
       "",
     ] : []),
     ...(money?.autopays?.some((b) => b.suspicious) ? [
-      `RECURRING CHARGES (suspicious autopay): $${(money.recurringAtRisk ?? 0).toFixed(2)}/mo`,
+      `RECURRING CHARGES TO VERIFY (sandbox example): $${(money.recurringAtRisk ?? 0).toFixed(2)}/mo`,
       ...money.autopays.filter((b) => b.suspicious).map((b) => `- ${b.payee} $${b.amount.toFixed(2)}/${b.cadence} set up ${b.createdAt} (${b.reason})`),
       "",
     ] : []),

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getRecord, note, saveRecord } from "@/lib/store";
-import { getAccounts, getBills, getLiveTransfers, getTransactions, traceMoney } from "@/lib/nessie";
+import { getAccounts, getBills, getTransactions, traceMoney } from "@/lib/nessie";
 import { isScopeAction } from "@/lib/scope";
 
 export const runtime = "nodejs";
@@ -14,16 +14,14 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
   if (!record.money || legacy) {
     try {
       const sentMoney = record.reportedActions.includes("sent_money");
-      const [transactions, liveTransfers, bills, accounts] = await Promise.all([
+      const [transactions, bills, accounts] = await Promise.all([
         getTransactions(),
-        getLiveTransfers(),
         getBills(),
         getAccounts(),
       ]);
       record.money = traceMoney(transactions, {
         message: record.incident.scrubbedMessage,
         sentMoney,
-        liveTransfers,
         bills,
         accounts,
       });
