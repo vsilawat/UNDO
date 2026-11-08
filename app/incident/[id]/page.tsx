@@ -10,7 +10,7 @@ import type {
   LogEvent,
   ScopeAction,
 } from "@/app/_client/types";
-import { Card, Button } from "@/components/ui";
+import { Button } from "@/components/ui";
 import { Stepper } from "@/components/Stepper";
 import { VerdictCard } from "@/components/VerdictCard";
 import { ActionFlow } from "@/components/ActionFlow";
@@ -72,16 +72,17 @@ export default function IncidentPage({
 
   if (error) {
     return (
-      <Card className="text-center">
-        <p className="text-lg font-semibold">Incident not found.</p>
-        <Link href="/" className="mt-2 inline-block text-warn underline">
-          Start a new one
+      <div className="border-2 border-ink bg-surface p-10 text-center">
+        <div className="label text-red">Error 404</div>
+        <p className="mt-3 text-3xl font-black uppercase">Incident not found</p>
+        <Link href="/" className="label mt-4 inline-block text-red hover:underline">
+          Start a new one →
         </Link>
-      </Card>
+      </div>
     );
   }
   if (!incident) {
-    return <div className="animate-pulse text-muted">Loading incident…</div>;
+    return <div className="label animate-pulse text-muted">Loading incident…</div>;
   }
 
   const anyCompromised = assets.some(
@@ -90,11 +91,11 @@ export default function IncidentPage({
 
   return (
     <div className="mx-auto max-w-xl">
-      <div className="mb-4 flex items-center justify-between text-sm">
-        <Link href="/" className="text-muted hover:text-warn">
+      <div className="mb-6 flex items-center justify-between">
+        <Link href="/" className="label text-muted hover:text-red">
           ← New incident
         </Link>
-        <span className="font-mono text-xs text-muted">#{incident.id}</span>
+        <span className="label text-muted">Case #{incident.id}</span>
       </div>
 
       <Stepper steps={STEPS} current={step} />
@@ -123,12 +124,16 @@ export default function IncidentPage({
       {step === 2 && (
         <div className="space-y-5">
           <div>
-            <h2 className="text-lg font-black uppercase tracking-wide">
+            <div className="label mb-3 flex items-center gap-2 text-red">
+              <span className="inline-block h-3 w-1.5 bg-red" />
+              Section C — scope of compromise
+            </div>
+            <h2 className="text-4xl font-black uppercase leading-none tracking-tight">
               Lock what&apos;s exposed
             </h2>
-            <p className="text-sm text-muted">
+            <p className="mt-3 text-muted">
               {anyCompromised
-                ? "Tap Lock on anything at risk. Do the red ones first."
+                ? "Lock anything at risk. Do the red ones first."
                 : "Nothing flagged as exposed — you can continue."}
             </p>
           </div>
@@ -147,10 +152,14 @@ export default function IncidentPage({
       {step === 3 && (
         <div className="space-y-5">
           <div>
-            <h2 className="text-lg font-black uppercase tracking-wide">
+            <div className="label mb-3 flex items-center gap-2 text-red">
+              <span className="inline-block h-3 w-1.5 bg-red" />
+              Section D — blast radius
+            </div>
+            <h2 className="text-4xl font-black uppercase leading-none tracking-tight">
               Trace the money
             </h2>
-            <p className="text-sm text-muted">
+            <p className="mt-3 text-muted">
               We flagged transactions that match the scam. Freeze if anything
               looks wrong.
             </p>
@@ -175,8 +184,8 @@ export default function IncidentPage({
             onExport={() => downloadReport(incident, log, money, assets)}
           />
           <details className="group">
-            <summary className="cursor-pointer list-none text-center text-xs tracking-widest text-muted hover:text-warn">
-              ▾ VIEW FULL EVENT LOG
+            <summary className="label cursor-pointer list-none text-center text-muted hover:text-red">
+              ▾ View full event log
             </summary>
             <div className="mt-3">
               <IncidentLog

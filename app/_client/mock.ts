@@ -16,7 +16,28 @@ interface Store {
   log: LogEvent[];
 }
 
-const db = new Map<string, Store>();
+const KEY = "undo_mock_db";
+
+function load(): Map<string, Store> {
+  if (typeof window === "undefined") return new Map();
+  try {
+    const raw = sessionStorage.getItem(KEY);
+    return raw ? new Map(JSON.parse(raw)) : new Map();
+  } catch {
+    return new Map();
+  }
+}
+
+const db = load();
+
+function persist() {
+  if (typeof window === "undefined") return;
+  try {
+    sessionStorage.setItem(KEY, JSON.stringify([...db.entries()]));
+  } catch {
+    /* quota / disabled storage — stay in-memory */
+  }
+}
 
 function now() {
   return new Date().toISOString();
@@ -95,6 +116,7 @@ export async function createIncident(message: string): Promise<Incident> {
     ],
     log: [{ time: createdAt, text: `Incident opened — ${incident.scamType}` }],
   });
+  persist();
   return incident;
 }
 
@@ -118,6 +140,7 @@ export async function patchScope(id: string, action: ScopeAction): Promise<Scope
   const a = s.assets.find((x) => x.name === eff.asset);
   if (a && a.status !== "locked") a.status = eff.status;
   s.log.push({ time: now(), text: `You reported: ${eff.label} → ${eff.asset} ${eff.status}` });
+  persist();
   return { assets: s.assets };
 }
 
@@ -127,6 +150,7 @@ export async function lockAsset(id: string, name: string): Promise<ScopeResult> 
   const a = s.assets.find((x) => x.name === name);
   if (a) a.status = "locked";
   s.log.push({ time: now(), text: `${name} locked` });
+  persist();
   return { assets: s.assets };
 }
 
