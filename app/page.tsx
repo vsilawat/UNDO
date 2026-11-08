@@ -15,15 +15,18 @@ export default function IntakePage() {
   const router = useRouter();
   const [msg, setMsg] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
 
   const open = async () => {
     if (!msg.trim() || loading) return;
+    setError(false);
     setLoading(true);
     try {
       const incident = await api.createIncident(msg.trim());
       router.push(`/incident/${incident.id}`);
     } catch {
       setLoading(false);
+      setError(true);
     }
   };
 
@@ -58,6 +61,7 @@ export default function IntakePage() {
             {loading ? "Analyzing…" : "Check it →"}
           </Button>
         </div>
+        {error && <p className="mt-3 text-sm text-crit">Could not open the incident. Please try again.</p>}
       </Card>
 
       <div className="mt-6 text-center">

@@ -1,9 +1,8 @@
-// Single API surface for the frontend. Uses the in-browser mock until the
-// backend ships /app/api, then flip NEXT_PUBLIC_USE_MOCK=false.
+// Single API surface for the frontend. The in-browser mock is opt-in for demos.
 import type { Incident, ScopeAction, ScopeResult, MoneyResult, LogResult } from "./types";
 import * as mock from "./mock";
 
-const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK !== "false";
+const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK === "true";
 
 async function http<T>(url: string, init?: RequestInit): Promise<T> {
   const res = await fetch(url, {
@@ -21,8 +20,7 @@ export const api = {
       : http("/api/incident", { method: "POST", body: JSON.stringify({ message }) });
   },
   getIncident(id: string): Promise<Incident> {
-    // No GET in the contract yet; mock serves it. Backend can add /api/incident/:id.
-    return mock.getIncident(id);
+    return USE_MOCK ? mock.getIncident(id) : http(`/api/incident/${id}`);
   },
   patchScope(id: string, action: ScopeAction): Promise<ScopeResult> {
     return USE_MOCK
@@ -30,10 +28,12 @@ export const api = {
       : http(`/api/incident/${id}/scope`, { method: "PATCH", body: JSON.stringify({ action }) });
   },
   lockAsset(id: string, name: string): Promise<ScopeResult> {
-    return mock.lockAsset(id, name);
+    return USE_MOCK
+      ? mock.lockAsset(id, name)
+      : http(`/api/incident/${id}/lock`, { method: "PATCH", body: JSON.stringify({ name }) });
   },
   getScope(id: string): Promise<ScopeResult> {
-    return mock.getScope(id);
+    return USE_MOCK ? mock.getScope(id) : http(`/api/incident/${id}/scope`);
   },
   getMoney(id: string): Promise<MoneyResult> {
     return USE_MOCK ? mock.getMoney(id) : http(`/api/incident/${id}/money`);

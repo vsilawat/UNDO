@@ -14,10 +14,12 @@ export function ActionFlow({
   onAnswer,
   onDone,
 }: {
-  onAnswer: (action: ScopeAction) => void;
+  onAnswer: (action: ScopeAction) => Promise<void>;
   onDone: () => void;
 }) {
   const [i, setI] = useState(0);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState(false);
   const done = i >= QUESTIONS.length;
 
   if (done) {
@@ -36,9 +38,22 @@ export function ActionFlow({
   }
 
   const cur = QUESTIONS[i];
-  const answer = (yes: boolean) => {
-    if (yes) onAnswer(cur.action);
-    setI((n) => n + 1);
+  const answer = async (yes: boolean) => {
+    if (saving) return;
+    setError(false);
+    if (!yes) {
+      setI((n) => n + 1);
+      return;
+    }
+    setSaving(true);
+    try {
+      await onAnswer(cur.action);
+      setI((n) => n + 1);
+    } catch {
+      setError(true);
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -49,13 +64,14 @@ export function ActionFlow({
       <p className="mt-2 text-2xl font-bold leading-snug">{cur.q}</p>
       <p className="mt-1 text-sm text-muted">{cur.hint}</p>
       <div className="mt-6 grid grid-cols-2 gap-3">
-        <Button variant="danger" size="lg" onClick={() => answer(true)}>
+        <Button variant="danger" size="lg" onClick={() => answer(true)} disabled={saving}>
           Yes
         </Button>
-        <Button variant="ghost" size="lg" onClick={() => answer(false)}>
+        <Button variant="ghost" size="lg" onClick={() => answer(false)} disabled={saving}>
           No
         </Button>
       </div>
+      {error && <p className="mt-3 text-sm text-crit">Could not save that answer. Please try again.</p>}
     </Card>
   );
 }

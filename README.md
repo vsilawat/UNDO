@@ -2,8 +2,8 @@
 Incident command center for scam victims. Undo the damage in the first hour.
 
 ## Stack
-Next.js (App Router) + Tailwind. Frontend ships with an in-browser mock backend,
-so it runs with zero backend wiring.
+Next.js (App Router) + Tailwind. The frontend uses the incident API by default.
+Set `NEXT_PUBLIC_USE_MOCK=true` to use temporary in-browser sample data instead.
 
 ## Run locally
 ```bash
@@ -13,11 +13,11 @@ npm run dev
 Open http://localhost:3000.
 
 ## Backend wiring
-The frontend talks to the API through `app/_client/api.ts`. Until the real API
-routes are live it uses the mock in `app/_client/mock.ts`. Flip it:
+The frontend talks to the API through `app/_client/api.ts`. The API routes are
+connected by default. To run the isolated frontend with temporary sample data:
 ```bash
 # .env.local
-NEXT_PUBLIC_USE_MOCK=false
+NEXT_PUBLIC_USE_MOCK=true
 ```
 
 Vasu's [backend pipeline reference](prototypes/README.md) records the intended
