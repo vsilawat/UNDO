@@ -16,6 +16,9 @@ import { VerdictCard } from "@/components/VerdictCard";
 import { ActionFlow } from "@/components/ActionFlow";
 import { ScopeBoard } from "@/components/ScopeBoard";
 import { BlastRadius } from "@/components/BlastRadius";
+import { MoneyFlow } from "@/components/MoneyFlow";
+import { AutopayTrap } from "@/components/AutopayTrap";
+import { AccountExposure } from "@/components/AccountExposure";
 import { IncidentLog } from "@/components/IncidentLog";
 import { RecoverySummary } from "@/components/RecoverySummary";
 
@@ -164,7 +167,10 @@ export default function IncidentPage({
               Check your real account with your bank or payment provider.
             </p>
           </div>
+          {money && <AccountExposure money={money} />}
           {money && <BlastRadius money={money} />}
+          {money && <MoneyFlow money={money} />}
+          {money && <AutopayTrap money={money} />}
           <div className="flex gap-3">
             <Button variant="ghost" onClick={back}>
               ← Back

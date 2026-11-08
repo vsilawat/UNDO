@@ -8,6 +8,7 @@ function band(c: number): "low" | "medium" | "high" {
 
 export function VerdictCard({ incident }: { incident: Incident }) {
   const b = band(incident.confidence);
+  const pct = Math.round(incident.confidence * 100);
 
   const v = !incident.isScam
     ? { line1: "No clear", line2: "scam signs", hl: false }
@@ -49,6 +50,29 @@ export function VerdictCard({ incident }: { incident: Incident }) {
           </div>
           <div className="label mt-1 text-muted">classification</div>
         </div>
+      </div>
+
+      {/* Honest confidence: calibrated number + band, not a false 100%. */}
+      <div className="mt-4 border-2 border-ink p-4">
+        <div className="flex items-baseline justify-between">
+          <span className="label text-muted">Confidence ({b})</span>
+          <span className="font-mono text-2xl font-black tabular-nums">
+            {pct}%
+          </span>
+        </div>
+        <div className="mt-2 h-2 w-full bg-surface-2">
+          <div className="h-full bg-red" style={{ width: `${pct}%` }} />
+        </div>
+        <p className="label mt-2 text-muted">
+          {b === "high"
+            ? "Multiple strong scam signals in the wording."
+            : b === "medium"
+              ? "Some scam signals; treat as likely but verify."
+              : "Weak signal — we are not sure. Verify before acting."}{" "}
+          Based on {incident.redFlags.length} wording signal
+          {incident.redFlags.length === 1 ? "" : "s"}, no message content sent to
+          any external model.
+        </p>
       </div>
 
       {b === "low" && incident.isScam && (

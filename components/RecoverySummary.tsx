@@ -1,5 +1,26 @@
+"use client";
+import { useEffect, useState } from "react";
 import type { Asset, MoneyResult } from "@/app/_client/types";
 import { Button } from "./ui";
+
+/** Count up to `target` once, for the final-screen reveal. */
+function useCountUp(target: number, ms = 900) {
+  const [value, setValue] = useState(0);
+  useEffect(() => {
+    if (target <= 0) return setValue(0);
+    let raf = 0;
+    const start = performance.now();
+    const tick = (t: number) => {
+      const p = Math.min((t - start) / ms, 1);
+      const eased = 1 - Math.pow(1 - p, 3); // easeOutCubic
+      setValue(Math.round(target * eased));
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [target, ms]);
+  return value;
+}
 
 const GUIDANCE = [
   {
@@ -28,6 +49,14 @@ export function RecoverySummary({
   const secured = assets.filter((a) => a.status === "locked").length;
   const exampleAmount = money?.totalAtRisk ?? 0;
 
+  // Damage prevented = money UNDO put within reach of recovery if the plan is
+  // acted on: balance in exposed accounts (freeze), flagged transfers (dispute),
+  // and a year of suspicious autopay (cancel). Honest framing: "if you act now".
+  const balanceExposed = money?.balanceExposed ?? 0;
+  const recurringYear = Math.round((money?.recurringAtRisk ?? 0) * 12 * 100) / 100;
+  const damagePrevented = Math.round(balanceExposed + exampleAmount + recurringYear);
+  const prevented = useCountUp(damagePrevented);
+
   const checklist = [
     { label: "Message reviewed", done: true },
     { label: "Exposure questions completed", done: true },
@@ -52,6 +81,35 @@ export function RecoverySummary({
       <p className="mt-5 text-lg text-muted">
         Here is what you recorded. Contact your providers to confirm any real account changes.
       </p>
+
+      {damagePrevented > 0 && (
+        <div className="mt-8 border-2 border-ink bg-ink p-6 text-bg">
+          <div className="label text-bg/70">Damage within reach of recovery</div>
+          <div className="mt-1 text-5xl font-black tabular-nums sm:text-6xl">
+            ${prevented.toLocaleString()}
+          </div>
+          <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1">
+            {balanceExposed > 0 && (
+              <span className="label text-bg/70">
+                ${balanceExposed.toLocaleString()} to freeze
+              </span>
+            )}
+            {exampleAmount > 0 && (
+              <span className="label text-bg/70">
+                ${exampleAmount.toLocaleString()} to dispute
+              </span>
+            )}
+            {recurringYear > 0 && (
+              <span className="label text-bg/70">
+                ${recurringYear.toLocaleString()}/yr autopay to cancel
+              </span>
+            )}
+          </div>
+          <p className="label mt-3 text-bg/60">
+            If you act on the freeze order now. Demo or sandbox figures.
+          </p>
+        </div>
+      )}
 
       <div className="mt-8 grid grid-cols-2 border-2 border-ink">
         <div className="border-r border-ink p-6">

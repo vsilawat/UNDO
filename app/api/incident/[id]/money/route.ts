@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getRecord, note, saveRecord } from "@/lib/store";
-import { getTransactions, traceMoney } from "@/lib/nessie";
+import { getAccounts, getBills, getLiveTransfers, getTransactions, traceMoney } from "@/lib/nessie";
 import { isScopeAction } from "@/lib/scope";
 
 export const runtime = "nodejs";
@@ -14,9 +14,18 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
   if (!record.money || legacy) {
     try {
       const sentMoney = record.reportedActions.includes("sent_money");
-      record.money = traceMoney(await getTransactions(), {
+      const [transactions, liveTransfers, bills, accounts] = await Promise.all([
+        getTransactions(),
+        getLiveTransfers(),
+        getBills(),
+        getAccounts(),
+      ]);
+      record.money = traceMoney(transactions, {
         message: record.incident.scrubbedMessage,
         sentMoney,
+        liveTransfers,
+        bills,
+        accounts,
       });
       note(record, `Example transaction candidates calculated: $${record.money.totalAtRisk.toFixed(2)} flagged in test data`);
       saveRecord(record);

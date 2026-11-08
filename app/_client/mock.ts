@@ -170,7 +170,37 @@ export async function getMoney(id: string): Promise<MoneyResult> {
     { id: "t4", amount: 199.99, payee: "Gift card reseller", date: "2026-11-07", flagged: true, reason: "Gift card purchase matches scam instructions" },
   ];
   const totalAtRisk = transactions.filter((t) => t.flagged).reduce((n, t) => n + t.amount, 0);
-  return { transactions, totalAtRisk, recommendation: "freeze" };
+  const origin = transactions.filter((t) => t.flagged).reduce((a, b) => (b.amount > a.amount ? b : a));
+  const flow = [
+    { from: "Your account", to: origin.payee, amount: origin.amount, medium: "zelle", minutesAfter: 0, live: false },
+    { from: origin.payee, to: "Pass-through account", amount: Math.round(origin.amount * 0.92 * 100) / 100, medium: "internal transfer", minutesAfter: 7, live: false },
+    { from: "Pass-through account", to: "Crypto cash-out", amount: Math.round(origin.amount * 0.82 * 100) / 100, medium: "crypto", minutesAfter: 19, live: false, final: true },
+  ];
+  const autopays = [
+    { id: "bill-1", payee: "City Power & Light", amount: 88.5, cadence: "monthly", createdAt: "2026-03-14", suspicious: false },
+    { id: "bill-2", payee: "StreamFlix", amount: 15.99, cadence: "monthly", createdAt: "2026-01-02", suspicious: false },
+    { id: "bill-3", payee: "SecurePay Services", amount: 49.0, cadence: "monthly", createdAt: "2026-11-07", suspicious: true, reason: "Recurring charge set up during the incident window to an unfamiliar payee" },
+  ];
+  const recurringAtRisk = autopays.filter((b) => b.suspicious).reduce((n, b) => n + b.amount, 0);
+  const accounts = [
+    { id: "acct-chk", nickname: "Everyday Checking", type: "Checking", balance: 3420.17, touched: true, priority: 1, priorityReason: "Flagged activity — freeze first", drainMinutes: 15 },
+    { id: "acct-sav", nickname: "Emergency Savings", type: "Savings", balance: 11250.0, touched: false, priority: 2, priorityReason: "Large balance but slower for a thief to move", drainMinutes: 120 },
+    { id: "acct-cc", nickname: "Rewards Card", type: "Credit Card", balance: -842.55, touched: false, priority: 3, priorityReason: "No cash to pull — lowest urgency", drainMinutes: 30 },
+  ];
+  const touched = accounts.filter((a) => a.touched);
+  const balanceExposed = touched.reduce((n, a) => n + Math.max(a.balance, 0), 0);
+  return {
+    transactions,
+    totalAtRisk,
+    recommendation: "freeze" as const,
+    flow,
+    flowModeled: true,
+    autopays,
+    recurringAtRisk,
+    accounts,
+    accountsTouched: touched.length,
+    balanceExposed,
+  };
 }
 
 export async function getLog(id: string): Promise<LogResult> {

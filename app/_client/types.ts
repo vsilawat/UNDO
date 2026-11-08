@@ -37,10 +37,48 @@ export interface MoneyTxn {
   reason?: string;
 }
 
+export interface FlowHop {
+  from: string;
+  to: string;
+  amount: number;
+  medium?: string; // zelle / wire / crypto / gift card
+  minutesAfter?: number; // minutes after the first hop
+  live?: boolean; // true = real Nessie transfer, false = modeled path
+  final?: boolean; // cash-out / unrecoverable endpoint
+}
+
+export interface Autopay {
+  id: string;
+  payee: string;
+  amount: number;
+  cadence: string; // e.g. "monthly"
+  createdAt: string;
+  suspicious: boolean;
+  reason?: string;
+}
+
+export interface AccountExposure {
+  id: string;
+  nickname: string;
+  type: string; // Checking / Savings / Credit Card
+  balance: number;
+  touched: boolean; // flagged activity hit this account
+  priority: number; // 1 = freeze first (triage rank)
+  priorityReason: string; // why it sits at this rank
+  drainMinutes: number; // est. minutes for the balance to be fully pullable
+}
+
 export interface MoneyResult {
   transactions: MoneyTxn[];
   totalAtRisk: number;
   recommendation: "freeze" | "dispute" | "monitor";
+  flow?: FlowHop[]; // money-mule / fund-flow chain from the flagged transfer
+  flowModeled?: boolean; // the downstream hops are a model, not live data
+  autopays?: Autopay[]; // recurring bills — scammer-planted drains flagged
+  recurringAtRisk?: number; // monthly $ exposed to suspicious autopays
+  accounts?: AccountExposure[]; // every account the person holds
+  accountsTouched?: number; // how many have flagged activity
+  balanceExposed?: number; // total balance sitting in touched accounts
 }
 
 export interface LogEvent {
