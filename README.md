@@ -20,6 +20,11 @@ routes are live it uses the mock in `app/_client/mock.ts`. Flip it:
 NEXT_PUBLIC_USE_MOCK=false
 ```
 
+Vasu's [backend pipeline reference](prototypes/README.md) records the intended
+processing stages. It is a Python prototype, not a second app or a live backend.
+The production backend should implement the shared API contract in
+`Agentic Web Tasks.md` using `lib/` and `app/api/`.
+
 ## Tracks
 - **T-Mobile** — scam detection with honest confidence, privacy by design, clear next steps
 - **Winstead** — incident log, scope board, simple under stress
