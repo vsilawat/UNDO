@@ -19,7 +19,7 @@ const demoTransactions: Omit<MoneyTxn, "flagged" | "reason">[] = [
 ];
 
 async function fetchEntries(path: string, key: string): Promise<NessieEntry[]> {
-  const base = process.env.NESSIE_BASE_URL || "https://api.reimaginebanking.com";
+  const base = process.env.NESSIE_BASE_URL || "https://api.nessieisreal.com";
   const url = new URL(path, base);
   url.searchParams.set("key", key);
   const response = await fetch(url, { signal: AbortSignal.timeout(5000), cache: "no-store" });
