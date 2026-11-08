@@ -11,6 +11,9 @@ try {
 const key = contents.split(/\r?\n/)
   .find((line) => line.startsWith("NESSIE_API_KEY="))
   ?.slice("NESSIE_API_KEY=".length).trim();
+const configuredAccountId = contents.split(/\r?\n/)
+  .find((line) => line.startsWith("NESSIE_ACCOUNT_ID="))
+  ?.slice("NESSIE_ACCOUNT_ID=".length).trim();
 if (!key) {
   console.error("NESSIE_API_KEY is empty in .env.local.");
   process.exit(1);
@@ -39,7 +42,8 @@ try {
     console.log(`Customer ${id}: ${accounts.length} account(s)`);
     for (const account of accounts) {
       if (typeof account._id !== "string") continue;
-      console.log(`  Account ID: ${account._id}`);
+      console.log(`  Account ID: ${account._id}${account._id === configuredAccountId ? " (configured for UNDO)" : ""}`);
+      if (configuredAccountId && account._id !== configuredAccountId) continue;
       for (const kind of ["purchases", "withdrawals"]) {
         try {
           const entries = await get(`/accounts/${encodeURIComponent(account._id)}/${kind}`);

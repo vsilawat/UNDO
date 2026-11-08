@@ -58,15 +58,15 @@ try {
   const customerId = customer._id;
   let accounts = await request(`/customers/${encodeURIComponent(customerId)}/accounts`);
   if (!Array.isArray(accounts)) throw new Error("Unexpected account list from Nessie");
-  let account = accounts.find((item) => item.nickname === "UNDO Demo Checking");
+  let account = accounts.find((item) => item.nickname === "UNDO Demo Checking v2");
   if (!account) {
     const created = await request(`/customers/${encodeURIComponent(customerId)}/accounts`, "POST", {
-      type: "Checking", nickname: "UNDO Demo Checking", rewards: 0, balance: 6000,
+      type: "Checking", nickname: "UNDO Demo Checking v2", rewards: 0, balance: 6000,
     });
     account = created?.objectCreated;
     if (!account?._id) {
       accounts = await request(`/customers/${encodeURIComponent(customerId)}/accounts`);
-      account = accounts.find((item) => item.nickname === "UNDO Demo Checking");
+      account = accounts.find((item) => item.nickname === "UNDO Demo Checking v2");
     }
     if (!account?._id) throw new Error("Account was created but its ID could not be found; rerun this script");
     console.log("Created UNDO demo checking account.");
@@ -82,7 +82,7 @@ try {
   for (const entry of entries) {
     if (existing.some((item) => item.description === entry.description)) continue;
     await request(path, "POST", {
-      medium: "balance", amount: entry.amount, description: entry.description,
+      medium: "balance", status: "completed", amount: entry.amount, description: entry.description,
       transaction_date: new Date().toISOString().slice(0, 10),
     });
     console.log(`Created sample payment: ${entry.description}.`);
