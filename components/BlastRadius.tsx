@@ -9,14 +9,14 @@ const REC = {
 export function BlastRadius({ money }: { money: MoneyResult }) {
   return (
     <div>
-      <div className="flex items-end justify-between border-y-2 border-ink py-4">
-        <div>
+      <div className="flex flex-wrap items-end justify-between gap-x-4 gap-y-3 border-y-2 border-ink py-4">
+        <div className="min-w-0">
           <div className="label text-muted">Example amount flagged</div>
-          <div className="mt-1 text-5xl font-black tabular-nums text-red">
+          <div className="mt-1 text-4xl font-black tabular-nums text-red sm:text-5xl">
             ${money.totalAtRisk.toLocaleString(undefined, { minimumFractionDigits: 2 })}
           </div>
         </div>
-        <div className="border-2 border-red px-4 py-2 text-sm font-bold uppercase tracking-wider text-red">
+        <div className="border-2 border-red px-4 py-2 text-xs font-bold uppercase tracking-wider text-red">
           Example action: {REC[money.recommendation]}
         </div>
       </div>
