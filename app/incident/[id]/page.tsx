@@ -106,7 +106,7 @@ export default function IncidentPage({
         <div className="space-y-5">
           <VerdictCard incident={incident} />
           <Button className="w-full" onClick={next}>
-            {incident.isScam ? "Start recovery →" : "Looks safe — review steps →"}
+            {incident.isScam ? "Review next steps →" : "Continue checking →"}
           </Button>
         </div>
       )}
@@ -129,12 +129,12 @@ export default function IncidentPage({
               Section C — scope of compromise
             </div>
             <h2 className="text-4xl font-black uppercase leading-none tracking-tight">
-              Lock what&apos;s exposed
+              Review accounts at risk
             </h2>
             <p className="mt-3 text-muted">
               {anyCompromised
-                ? "Lock anything at risk. Do the red ones first."
-                : "Nothing flagged as exposed — you can continue."}
+                ? "Secure these accounts with their providers. Then mark what you have done here."
+                : "You have not reported account exposure. You can continue."}
             </p>
           </div>
           <ScopeBoard assets={assets} onLock={onLock} />
@@ -157,11 +157,11 @@ export default function IncidentPage({
               Section D — blast radius
             </div>
             <h2 className="text-4xl font-black uppercase leading-none tracking-tight">
-              Trace the money
+              Review example transactions
             </h2>
             <p className="mt-3 text-muted">
-              We flagged transactions that match the scam. Freeze if anything
-              looks wrong.
+              These are sample or sandbox transactions, not your bank activity.
+              Check your real account with your bank or payment provider.
             </p>
           </div>
           {money && <BlastRadius money={money} />}

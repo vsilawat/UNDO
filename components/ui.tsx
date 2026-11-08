@@ -36,10 +36,10 @@ export function Button({
 }
 
 const STATUS_META: Record<AssetStatus, { label: string; tw: string }> = {
-  safe: { label: "Safe", tw: "text-ok border-ok" },
+  safe: { label: "No exposure reported", tw: "text-ok border-ok" },
   at_risk: { label: "At risk", tw: "text-warn border-warn" },
-  compromised: { label: "Compromised", tw: "text-red border-red" },
-  locked: { label: "Locked", tw: "text-ink border-ink" },
+  compromised: { label: "Reported exposed", tw: "text-red border-red" },
+  locked: { label: "Marked secured", tw: "text-ink border-ink" },
 };
 
 export function StatusChip({ status }: { status: AssetStatus }) {

@@ -11,13 +11,13 @@ export function BlastRadius({ money }: { money: MoneyResult }) {
     <div>
       <div className="flex items-end justify-between border-y-2 border-ink py-4">
         <div>
-          <div className="label text-muted">Total at risk</div>
+          <div className="label text-muted">Example amount flagged</div>
           <div className="mt-1 text-5xl font-black tabular-nums text-red">
             ${money.totalAtRisk.toLocaleString(undefined, { minimumFractionDigits: 2 })}
           </div>
         </div>
         <div className="border-2 border-red px-4 py-2 text-sm font-bold uppercase tracking-wider text-red">
-          {REC[money.recommendation]}
+          Example action: {REC[money.recommendation]}
         </div>
       </div>
 
@@ -44,7 +44,7 @@ export function BlastRadius({ money }: { money: MoneyResult }) {
         ))}
       </ul>
       <p className="label mt-4 text-muted">
-        Traced via Nessie account data · flagged rows match the scam pattern
+        Example or sandbox transactions only. These are not your bank activity.
       </p>
     </div>
   );

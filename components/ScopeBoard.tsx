@@ -26,10 +26,10 @@ export function ScopeBoard({
           </div>
           {a.status !== "safe" && a.status !== "locked" ? (
             <Button variant="danger" onClick={() => onLock(a.name)}>
-              Lock it
+              I secured this
             </Button>
           ) : a.status === "locked" ? (
-            <span className="label text-ink">🔒 Secured</span>
+            <span className="label text-ink">Marked secured</span>
           ) : (
             <span className="label text-muted">—</span>
           )}

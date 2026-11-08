@@ -49,7 +49,7 @@ export default function IntakePage() {
       </div>
 
       <h1 className="text-5xl font-black uppercase leading-[0.92] tracking-tight sm:text-7xl">
-        Undo the damage in the{" "}
+        Take the next step in the{" "}
         <span className="inline-block bg-red px-3 pb-1 text-bg">
           first hour.
         </span>
@@ -57,7 +57,7 @@ export default function IntakePage() {
 
       <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted">
         You&apos;re not stupid and you&apos;re not alone. Paste the message — we
-        start the clock and walk you through undoing the damage, step by step.
+        check for warning signs and help you plan what to do next.
       </p>
 
       <div className="mt-10">
@@ -75,7 +75,7 @@ export default function IntakePage() {
 
         <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
           <span className="label text-muted">
-            Personal details stripped before analysis
+            Common personal details are removed before saving
           </span>
           <Button size="lg" onClick={open} disabled={!msg.trim() || loading}>
             {loading ? "Analyzing…" : "Check it →"}

@@ -34,6 +34,9 @@ The default money data is a deterministic demo set. To use a Nessie sandbox
 account, set `NESSIE_API_KEY` and `NESSIE_ACCOUNT_ID` in `.env.local`.
 The backend reads that account's purchases and withdrawals. A Nessie request
 failure returns an error; it does not silently present demo transactions as live.
+Both sources are test data, not a visitor's bank activity. Marking an account
+as secured records the visitor's own report; UNDO does not contact account
+providers or lock accounts.
 
 Incident records are local JSON files in the system temp directory by default
 (`UNDO_DATA_DIR` overrides this). They contain scrubbed messages only. This is

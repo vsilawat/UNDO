@@ -7,20 +7,24 @@ function band(c: number): "low" | "medium" | "high" {
 }
 
 export function VerdictCard({ incident }: { incident: Incident }) {
-  const pct = Math.round(incident.confidence * 100);
   const b = band(incident.confidence);
 
   const v = !incident.isScam
-    ? { line1: "Looks", line2: "legitimate", hl: false }
+    ? { line1: "No clear", line2: "scam signs", hl: false }
     : b === "low"
       ? { line1: "Possibly", line2: "a scam", hl: true }
-      : { line1: "This is", line2: "a scam", hl: true };
+      : { line1: "Likely", line2: "a scam", hl: true };
+  const signal = !incident.isScam
+    ? "Routine wording"
+    : b === "low"
+      ? "Uncertain"
+      : "Strong signs";
 
   return (
     <div>
       <div className="label mb-4 flex items-center gap-2 text-red">
         <span className="inline-block h-3 w-1.5 bg-red" />
-        Verdict — threat assessment
+        Message check — based on wording only
       </div>
 
       <h1 className="text-5xl font-black uppercase leading-[0.92] tracking-tight sm:text-6xl">
@@ -36,12 +40,12 @@ export function VerdictCard({ incident }: { incident: Incident }) {
 
       <div className="mt-6 flex items-stretch border-y-2 border-ink">
         <div className="border-r border-ink py-4 pr-6">
-          <div className="text-4xl font-black tabular-nums">{pct}%</div>
-          <div className="label text-muted">confidence</div>
+          <div className="text-2xl font-black">{signal}</div>
+          <div className="label text-muted">message signals</div>
         </div>
         <div className="flex-1 py-4 pl-6">
           <div className="text-xl font-bold">
-            {incident.isScam ? incident.scamType : "No threat detected"}
+            {incident.isScam ? incident.scamType : "Sender not verified"}
           </div>
           <div className="label mt-1 text-muted">classification</div>
         </div>
@@ -49,8 +53,8 @@ export function VerdictCard({ incident }: { incident: Incident }) {
 
       {b === "low" && incident.isScam && (
         <p className="mt-6 border-l-4 border-red bg-surface-2 p-4 text-sm">
-          We&apos;re not fully sure — so treat it as a scam. Don&apos;t reply or
-          click. Call your bank directly.
+          This check is uncertain. Don&apos;t reply or click. Contact the
+          organization through a number or website you already trust.
         </p>
       )}
 
@@ -60,7 +64,7 @@ export function VerdictCard({ incident }: { incident: Incident }) {
           {incident.scrubbedMessage}
         </p>
         <p className="label mt-3 text-muted">
-          Personal details removed before analysis — privacy by design
+          Common personal details are removed from the saved message
         </p>
       </div>
 

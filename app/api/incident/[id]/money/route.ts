@@ -9,7 +9,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
   if (!record.money) {
     try {
       record.money = traceMoney(await getTransactions());
-      note(record, `Money check completed: $${record.money.totalAtRisk.toFixed(2)} flagged for review`);
+      note(record, `Example transaction review completed: $${record.money.totalAtRisk.toFixed(2)} flagged in test data`);
       saveRecord(record);
     } catch {
       return NextResponse.json({ error: "Could not load Nessie transactions" }, { status: 502 });

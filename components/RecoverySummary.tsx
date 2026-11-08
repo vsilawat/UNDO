@@ -4,15 +4,15 @@ import { Button } from "./ui";
 const GUIDANCE = [
   {
     h: "Act fast",
-    b: "Banks can recall transfers and freeze cards — but the window is measured in minutes, not days.",
+    b: "Contact your bank or payment provider immediately if you sent money. Ask whether the payment can be reversed.",
   },
   {
     h: "Say it right",
-    b: "Your report has the exact wording that opens a fraud claim, so you don't freeze up on the phone.",
+    b: "Your report gathers the details you entered so you can explain them when you contact your bank.",
   },
   {
     h: "Keep proof",
-    b: "Every step is logged so you know what to screenshot and save before it disappears.",
+    b: "Save any messages, receipts, and account notices you still have.",
   },
 ];
 
@@ -25,65 +25,64 @@ export function RecoverySummary({
   money: MoneyResult | null;
   onExport: () => void;
 }) {
-  const locked = assets.filter((a) => a.status === "locked").length;
-  const handled = assets.filter(
-    (a) => a.status === "locked" || a.status === "safe",
-  ).length;
-  const protectedAmt = money?.totalAtRisk ?? 0;
+  const secured = assets.filter((a) => a.status === "locked").length;
+  const exampleAmount = money?.totalAtRisk ?? 0;
 
   const checklist = [
-    "Threat identified",
-    "Exposure checked",
-    `${locked} account${locked === 1 ? "" : "s"} locked`,
-    "Money traced",
-    "Incident recorded",
+    { label: "Message reviewed", done: true },
+    { label: "Exposure questions completed", done: true },
+    { label: `${secured} account${secured === 1 ? "" : "s"} marked secured by you`, done: secured > 0 },
+    { label: "Example transactions reviewed", done: !!money },
+    { label: "Incident recorded", done: true },
   ];
 
   return (
     <div>
       <div className="label mb-4 flex items-center gap-2 text-red">
         <span className="inline-block h-3 w-1.5 bg-red" />
-        Status — contained
+        Status — review complete
       </div>
 
       <h1 className="text-5xl font-black uppercase leading-[0.92] tracking-tight sm:text-6xl">
-        You{" "}
+        Review{" "}
         <span className="inline-block bg-red px-3 pb-1 text-bg">
-          contained it.
+          complete.
         </span>
       </h1>
       <p className="mt-5 text-lg text-muted">
-        You acted fast. Here&apos;s what you protected.
+        Here is what you recorded. Contact your providers to confirm any real account changes.
       </p>
 
       <div className="mt-8 grid grid-cols-2 border-2 border-ink">
         <div className="border-r border-ink p-6">
           <div className="text-4xl font-black tabular-nums text-red">
-            ${protectedAmt.toLocaleString(undefined, { minimumFractionDigits: 0 })}
+            ${exampleAmount.toLocaleString(undefined, { minimumFractionDigits: 0 })}
           </div>
-          <div className="label mt-1 text-muted">money flagged</div>
+          <div className="label mt-1 text-muted">example amount flagged</div>
         </div>
         <div className="p-6">
           <div className="text-4xl font-black tabular-nums">
-            {handled}/{assets.length}
+            {secured}
           </div>
-          <div className="label mt-1 text-muted">assets handled</div>
+          <div className="label mt-1 text-muted">accounts you marked secured</div>
         </div>
       </div>
 
       <ul className="mt-6">
         {checklist.map((c, i) => (
           <li
-            key={c}
+            key={c.label}
             className="flex items-center gap-5 border-b border-line py-3.5"
           >
-            <span className="grid h-6 w-6 shrink-0 place-items-center border border-ink bg-ink text-xs text-bg">
-              ✓
+            <span
+              className={`grid h-6 w-6 shrink-0 place-items-center border border-ink text-xs ${c.done ? "bg-ink text-bg" : "text-ink"}`}
+            >
+              {c.done ? "✓" : ""}
             </span>
             <span className="label w-6 text-muted">
               {String(i + 1).padStart(2, "0")}
             </span>
-            <span className="font-bold">{c}</span>
+            <span className="font-bold">{c.label}</span>
           </li>
         ))}
       </ul>
@@ -92,7 +91,7 @@ export function RecoverySummary({
         ⬇ Download incident report
       </Button>
       <p className="label mt-3 text-center text-muted">
-        Keep this for your bank and the police report
+        Review the example data before sharing this report
       </p>
 
       <div className="mt-10 grid border-2 border-ink sm:grid-cols-3">

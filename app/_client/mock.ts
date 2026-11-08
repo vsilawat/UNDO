@@ -149,7 +149,7 @@ export async function lockAsset(id: string, name: string): Promise<ScopeResult> 
   if (!s) throw new Error("Incident not found");
   const a = s.assets.find((x) => x.name === name);
   if (a) a.status = "locked";
-  s.log.push({ time: now(), text: `${name} locked` });
+  s.log.push({ time: now(), text: `You reported securing ${name} outside UNDO` });
   persist();
   return { assets: s.assets };
 }

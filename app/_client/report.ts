@@ -1,5 +1,12 @@
 import type { Incident, LogEvent, MoneyResult, Asset } from "./types";
 
+function assetStatus(asset: Asset): string {
+  if (asset.status === "locked") return "user reported securing it outside UNDO";
+  if (asset.status === "safe") return "no exposure reported";
+  if (asset.status === "compromised") return "reported exposed";
+  return "may be at risk";
+}
+
 function fmt(iso: string) {
   try {
     return new Date(iso).toLocaleTimeString([], {
@@ -22,18 +29,20 @@ export function buildReport(
     `UNDO INCIDENT REPORT`,
     `Incident ID: ${incident.id}`,
     `Opened: ${incident.createdAt}`,
-    `Scam type: ${incident.scamType} (confidence ${Math.round(incident.confidence * 100)}%)`,
+    `Message assessment: ${incident.isScam ? "possible scam" : "no clear scam signs found"} (${incident.scamType}; based on wording only)`,
     ``,
-    `MESSAGE (personal details removed):`,
+    `MESSAGE (common personal details removed):`,
     incident.scrubbedMessage,
     ``,
     `SCOPE OF COMPROMISE:`,
-    ...assets.map((a) => `  - ${a.name}: ${a.status}`),
+    ...assets.map((a) => `  - ${a.name}: ${assetStatus(a)}`),
     ``,
   ];
   if (money) {
     lines.push(
-      `MONEY AT RISK: $${money.totalAtRisk.toFixed(2)} — recommendation: ${money.recommendation}`,
+      `EXAMPLE TRANSACTIONS (demo or Nessie sandbox; not your bank activity):`,
+      `Example amount flagged for review: $${money.totalAtRisk.toFixed(2)}`,
+      `Example review action: ${money.recommendation}`,
     );
     money.transactions
       .filter((t) => t.flagged)

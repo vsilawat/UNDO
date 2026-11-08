@@ -13,7 +13,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   if (!asset) return NextResponse.json({ error: "Unknown asset" }, { status: 400 });
   if (asset.status !== "locked") {
     asset.status = "locked";
-    note(record, `${name} marked locked`);
+    note(record, `You reported securing ${name} outside UNDO`);
     saveRecord(record);
   }
   return NextResponse.json({ assets: record.assets });
