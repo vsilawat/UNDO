@@ -1,0 +1,22 @@
+[
+  {
+    "name": "obvious bank scam",
+    "message": "URGENT: Your bank account is locked. Verify now at http://secure-bank-verify.co or call 800-555-0199. Reply with the code we texted you.",
+    "expected": "scam"
+  },
+  {
+    "name": "government payment scam",
+    "message": "IRS FINAL NOTICE: You owe $2,340 in back taxes. Pay with gift cards within 24h or a warrant will be issued.",
+    "expected": "scam"
+  },
+  {
+    "name": "subtle uncertain message",
+    "message": "Please verify your details when you have a chance.",
+    "expected": "uncertain"
+  },
+  {
+    "name": "routine delivery notice",
+    "message": "Your package was delivered to the front porch. Thanks for shopping with us.",
+    "expected": "legitimate"
+  }
+]

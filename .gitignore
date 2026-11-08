@@ -14,7 +14,7 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
+# Python template originally ignored lib/, but the Next.js backend lives there.
 lib64/
 parts/
 sdist/
@@ -222,6 +222,8 @@ __marimo__/
 # deps/build
 node_modules/
 .next/
+*.tsbuildinfo
 .env.local
+.env.*.local
 .playwright-mcp/
 undo-*.png
